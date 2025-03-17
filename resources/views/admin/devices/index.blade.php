@@ -63,7 +63,7 @@
                     </div>
                     <div
                         class="col-md-8 col-xl-3 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                        <a href="#" class="btn btn-primary d-flex align-items-center mb-2 mb-md-0">
+                        <a href="{{ route('admin.device.create') }}" class="btn btn-primary d-flex align-items-center mb-2 mb-md-0">
                             <i class="ti ti-plus text-white me-1 fs-5"></i> Add Device
                         </a>
                         <a href="#" class="btn btn-success mb-3 mb-md-0 ms-md-2 d-flex align-items-center">
@@ -113,10 +113,10 @@
                                 </td>
                                 <td>Gedung A</td>
                                 <td>
-                                    <a href="#" class="btn btn-outline-info">Detail</a>
+                                    <a href="{{ route('admin.device.show') }}" class="btn btn-outline-info">Detail</a>
                                     <a href="#" class="btn btn-outline-primary">Edit</a>
                                     <button type="button" class="btn btn-outline-danger">Hapus</button>
-                                    <a href="#" class="btn btn-outline-secondary">Lihat Device</a>
+                                    <a href="{{ route('admin.device.details') }}" class="btn btn-outline-secondary">Lihat Device</a>
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
                                         data-bs-target="#moveLocationModal" data-device-id="1">
                                         Move Location

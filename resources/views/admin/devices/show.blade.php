@@ -6,136 +6,6 @@
     <link href="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
-    <!-- Additional styles for device detail page -->
-    <style>
-        .device-card {
-            margin-bottom: 30px;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-        }
-
-        .status-active {
-            background-color: #28a745;
-        }
-
-        .status-inactive {
-            background-color: #6c757d;
-        }
-
-        .marker {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            border-radius: 50%;
-            border: 2px solid white;
-            transform: translate(-50%, -50%);
-        }
-
-        .qr-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .location-container {
-            margin-top: 20px;
-            position: relative;
-            width: 100%;
-            height: auto;
-        }
-
-        .location-container img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .location-container h5 {
-            position: absolute;
-            top: 10px;
-            left: 20px;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 5px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        table tr td {
-            padding: 8px 15px;
-        }
-
-        .action-buttons a,
-        .action-buttons button {
-            margin-right: 10px;
-        }
-
-        .device-photos {
-            margin-top: 30px;
-        }
-
-        .device-photos .title {
-            margin-bottom: 15px;
-        }
-
-        .device-photos .photo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .device-photos .photo-item {
-            width: calc(33.333% - 10px);
-            position: relative;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid #ddd;
-        }
-
-        .device-photos .photo-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .device-photos .photo-item .photo-caption {
-            padding: 5px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .specific-location {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 4px solid #007bff;
-        }
-
-        .specific-location h5 {
-            color: #495057;
-            margin-bottom: 10px;
-        }
-
-        .specific-location ul {
-            margin-bottom: 0;
-            padding-left: 20px;
-        }
-
-        .specific-location li {
-            margin-bottom: 5px;
-        }
-    </style>
 @endpush
 
 <div class="row">
@@ -153,240 +23,465 @@
     </div>
 </div>
 
-<div class="shop-detail">
-    <div class="row">
-        <!-- Left Section: Device Info -->
-        <div class="col-lg-8 device-card">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h4 class="card-title">Device Information</h4>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#" class="btn btn-outline-secondary btn-sm">
-                                <i class="fa fa-arrow-left"></i> Back to Devices
-                            </a>
-                        </div>
+<!-- Quick Stats -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="media-body">
+                        <p class="text-muted font-weight-medium mb-1">Status</p>
+                        <h4 class="mb-0 text-success">Active</h4>
+                        <span class="text-success font-size-12">Since 16 Mar 2025</span>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="device-content">
-                        <h5 class="fw-semibold mb-3">DEV-001</h5>
-
-                        <p><strong>Device Type:</strong> Router</p>
-                        <p><strong>Serial Key:</strong> SN-12345678</p>
-
-                        <!-- 3D Model Viewer (placeholder) -->
-                        <div class="mb-4 text-center">
-                            <div style="border: 1px dashed #ccc; padding: 20px; background-color: #f8f9fa;">
-                                <i class="fa fa-cube fa-3x mb-3"></i>
-                                <p>3D Model Preview would appear here</p>
-                            </div>
-                        </div>
-
-                        <!-- Status Section -->
-                        <p><strong>Status:</strong>
-                            <span class="status-badge status-active">
-                                Active
-                            </span>
-                        </p>
-
-                        <!-- Specific Location Information -->
-                        <div class="specific-location">
-                            <h5><i class="fa fa-map-marker"></i> Specific Location Details</h5>
-                            <ul>
-                                <li><strong>Building:</strong> Gedung A - Pusat Data</li>
-                                <li><strong>Floor:</strong> 3rd Floor</li>
-                                <li><strong>Room:</strong> Server Room 302</li>
-                                <li><strong>Rack:</strong> Rack 05-B</li>
-                                <li><strong>Position:</strong> Mounted on U24-U25</li>
-                                <li><strong>Notes:</strong> Connected to main power supply and backup generator</li>
-                            </ul>
-                        </div>
-
-                        <!-- QR Code Section -->
-                        <div class="qr-container">
-                            <h5>QR Code:</h5>
-                            <div style="border: 1px solid #ddd; display: inline-block; padding: 10px;">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DEV-001"
-                                    alt="QR Code" width="150">
-                            </div>
-                        </div>
-
-                        <!-- Device Location -->
-                        <div class="location-container mt-4" id="location-container">
-                            <h5>Device Location</h5>
-                            <img src="{{ asset('uploads/gedung/photo/building-a.jpg') }}" alt="Building Map"
-                                id="building-map">
-                            <!-- Marker at 50% from left, 40% from top -->
-                            <div class="marker" style="left: 50%; top: 40%;"></div>
-                        </div>
-                        <p class="mt-2"><strong>Coordinates:</strong> 50.00,40.00</p>
-
-                        <!-- Device Photos -->
-                        <div class="device-photos">
-                            <h5 class="title">Device Photos</h5>
-                            <div class="photo-gallery">
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_front.jpg') }}" alt="Device Front View">
-                                    <div class="photo-caption">Front View</div>
-                                </div>
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_back.jpg') }}" alt="Device Back View">
-                                    <div class="photo-caption">Back View</div>
-                                </div>
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_installed.jpg') }}"
-                                        alt="Device Installed">
-                                    <div class="photo-caption">Installed in Rack</div>
-                                </div>
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_serial.jpg') }}" alt="Serial Number">
-                                    <div class="photo-caption">Serial Number</div>
-                                </div>
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_connections.jpg') }}"
-                                        alt="Device Connections">
-                                    <div class="photo-caption">Cable Connections</div>
-                                </div>
-                                <div class="photo-item">
-                                    <img src="{{ asset('uploads/devices/device_label.jpg') }}" alt="Device Label">
-                                    <div class="photo-caption">Device Label</div>
-                                </div>
-                            </div>
+                    <div class="avatar-md">
+                        <div class="avatar-title rounded-circle bg-soft-primary">
+                            <i class="fa fa-signal text-primary font-size-24"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Right Section: Additional Info -->
-        <div class="col-lg-4 device-card">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">Additional Information</h4>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="media-body">
+                        <p class="text-muted font-weight-medium mb-1">Last Maintenance</p>
+                        <h4 class="mb-0">15 Mar 2025</h4>
+                        <span class="text-muted font-size-12">5 days ago</span>
+                    </div>
+                    <div class="avatar-md">
+                        <div class="avatar-title rounded-circle bg-soft-info">
+                            <i class="fa fa-clock text-info font-size-24"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table mb-0">
-                        <tr>
-                            <td><strong>Device ID</strong></td>
-                            <td>DEV-001</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Serial Key</strong></td>
-                            <td>SN-12345678</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Device Type</strong></td>
-                            <td>Router</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Building</strong></td>
-                            <td>Gedung A - Pusat Data</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Room</strong></td>
-                            <td>Server Room 302</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Rack Position</strong></td>
-                            <td>Rack 05-B, U24-U25</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Status</strong></td>
-                            <td>Active</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Last Maintained</strong></td>
-                            <td>15 Mar 2025</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Installed By</strong></td>
-                            <td>John Technician</td>
-                        </tr>
-                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="media-body">
+                        <p class="text-muted font-weight-medium mb-1">Firmware</p>
+                        <h4 class="mb-0">v2.0.3.18</h4>
+                        <span class="text-muted font-size-12">Updated 14 Mar 2025</span>
+                    </div>
+                    <div class="avatar-md">
+                        <div class="avatar-title rounded-circle bg-soft-warning">
+                            <i class="fa fa-sync text-warning font-size-24"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="media-body">
+                        <p class="text-muted font-weight-medium mb-1">Location</p>
+                        <h4 class="mb-0">Gedung A</h4>
+                        <span class="text-muted font-size-12">Server Room 302</span>
+                    </div>
+                    <div class="avatar-md">
+                        <div class="avatar-title rounded-circle bg-soft-danger">
+                            <i class="fa fa-map-marker text-danger font-size-24"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Device Info Card -->
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h4 class="card-title d-flex align-items-center">
+                    <span>Cisco RV340 Router</span>
+                    <span class="badge bg-light text-dark ms-2">DEV-001</span>
+                </h4>
+            </div>
+            <div class="col-auto">
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-outline-warning btn-sm mb-1">
+                        <i class="fa fa-pencil"></i> Edit Device
+                    </a>
+                    <button type="button" class="btn btn-outline-info btn-sm mb-1" data-bs-toggle="modal"
+                        data-bs-target="#moveLocationModal" data-device-id="1">
+                        <i class="fa fa-map-marker"></i> Move Location
+                    </button>
+                    <a href="#" class="btn btn-outline-primary btn-sm mb-1">
+                        <i class="fa fa-print"></i> Print QR
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm mb-1"
+                        onclick="return confirm('Are you sure?')">
+                        <i class="fa fa-trash"></i> Delete Device
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Basic Device Info -->
+            <div class="col-md-8">
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Serial Number</div>
+                        <div>SN-12345678</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Model</div>
+                        <div>Cisco RV340</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Installed By</div>
+                        <div>John Technician</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Firmware Version</div>
+                        <div>v2.0.3.18</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Ports</div>
+                        <div>4x Gigabit Ethernet, 2x USB</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">VPN Throughput</div>
+                        <div>150 Mbps</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Firewall Throughput</div>
+                        <div>900 Mbps</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-muted">Power Supply</div>
+                        <div>12V 2A</div>
+                    </div>
+                </div>
+
+                <!-- Location Details -->
+                <div class="specific-location mb-4">
+                    <h5><i class="fa fa-map-marker"></i> Specific Location Details</h5>
+                    <ul>
+                        <li><strong>Building:</strong> Gedung A - Pusat Data</li>
+                        <li><strong>Floor:</strong> 3rd Floor</li>
+                        <li><strong>Room:</strong> Server Room 302</li>
+                        <li><strong>Rack:</strong> Rack 05-B</li>
+                        <li><strong>Position:</strong> Mounted on U24-U25</li>
+                        <li><strong>Notes:</strong> Connected to main power supply and backup generator</li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- History Location Section -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h4 class="card-title">Location History</h4>
+            <!-- QR Code -->
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <div class="qr-container">
+                        <h5>QR Code:</h5>
+                        <div style="border: 1px solid #ddd; display: inline-block; padding: 10px;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DEV-001"
+                                alt="QR Code" width="150">
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-striped mb-0">
-                        <thead>
-                            <tr>
-                                <th>Building</th>
-                                <th>Location</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3D Model Section -->
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">3D Model View</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+
+
+            <div class="col-md-12">
+                <div
+                    style="border: 1px solid #ddd; border-radius: 4px; height: 400px; width: 100%; position: relative; overflow: hidden;">
+                    <!-- Placeholder for 3D model viewer -->
+                    <div
+                        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                        <i class="fa fa-cube fa-4x mb-3 text-muted"></i>
+                        <h5 class="text-muted">3D Model Preview</h5>
+                        <p class="text-center text-muted">Interactive 3D model of Cisco RV340 Router would appear here
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Network Information Card -->
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Network Information</h4>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs nav-bordered" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#wifi-device-tab" role="tab">WIFI
+                    Devices</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#wifi-client-tab" role="tab">WIFI Client</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#switch-tab" role="tab">Switch</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- WIFI Devices Tab -->
+            <div class="tab-pane active" id="wifi-device-tab" role="tabpanel">
+                <div class="p-2">
+                    <table class="table table-borderless mb-0">
                         <tbody>
                             <tr>
-                                <td>Gedung A</td>
-                                <td>Server Room 302, Rack 05-B</td>
-                                <td>16 Mar 2025 10:30</td>
+                                <td style="width: 30%;"><strong>Model Name</strong></td>
+                                <td>R550</td>
                             </tr>
                             <tr>
-                                <td>Gedung B</td>
-                                <td>Network Center, Rack 12-C</td>
-                                <td>10 Mar 2025 14:15</td>
+                                <td><strong>AP Name</strong></td>
+                                <td>AP-LT-1</td>
                             </tr>
                             <tr>
-                                <td>Gedung A</td>
-                                <td>Storage Room 101</td>
-                                <td>02 Mar 2025 09:00</td>
+                                <td><strong>Channel 2.4 GHz</strong></td>
+                                <td>11</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Channel 5.0 GHz</strong></td>
+                                <td>153</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Connected</strong></td>
+                                <td>17</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status Connected</strong></td>
+                                <td><span class="badge bg-success">Connected</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Uptime</strong></td>
+                                <td>1 Hari 4 Jam 46 Menit 27 Detik</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Technical Specifications -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h4 class="card-title">Technical Specifications</h4>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><strong>Model:</strong> Cisco RV340</li>
-                        <li class="mb-2"><strong>Ports:</strong> 4x Gigabit Ethernet, 2x USB</li>
-                        <li class="mb-2"><strong>Firewall Throughput:</strong> 900 Mbps</li>
-                        <li class="mb-2"><strong>VPN Throughput:</strong> 150 Mbps</li>
-                        <li class="mb-2"><strong>Power Supply:</strong> 12V 2A</li>
-                        <li class="mb-2"><strong>Firmware:</strong> v2.0.3.18</li>
-                        <li><strong>Last Update:</strong> 14 Mar 2025</li>
-                    </ul>
+            <!-- WIFI Client Tab -->
+            <div class="tab-pane" id="wifi-client-tab" role="tabpanel">
+                <div class="p-2">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td style="width: 30%;"><strong>SSID</strong></td>
+                                <td>eduroam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Username</strong></td>
+                                <td>...@....</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IP</strong></td>
+                                <td>10.103.8.73</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OS Type</strong></td>
+                                <td>Android</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Model Name</strong></td>
+                                <td>Generic Smartphone</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Type</strong></td>
+                                <td>Device Type</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client MAC</strong></td>
+                                <td>D2:17:......</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AP Name</strong></td>
+                                <td>AP-1-LT1</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Channel</strong></td>
+                                <td>153</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RSSI</strong></td>
+                                <td>-65 dBm</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h4 class="card-title">Actions</h4>
+            <!-- Switch Tab -->
+            <div class="tab-pane" id="switch-tab" role="tabpanel">
+                <div class="p-2">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td style="width: 30%;"><strong>Switch Name</strong></td>
+                                <td>DSW_G-KANTOR/KULIAH/L</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Model</strong></td>
+                                <td>ICX7450-48G</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Serial Number</strong></td>
+                                <td>xcsxc</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MAC Address</strong></td>
+                                <td>C0:C5:20:62:68:38</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IP Address</strong></td>
+                                <td>10.53.1.1</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status</strong></td>
+                                <td><span class="badge bg-success">Online</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ports</strong></td>
+                                <td>54</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firmware</strong></td>
+                                <td>SPR08095r</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Uptime</strong></td>
+                                <td>1 Hari 4 Jam 46 Menit 27 Detik</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <div class="action-buttons">
-                        <a href="#" class="btn btn-outline-warning btn-sm mb-2">
-                            <i class="fa fa-pencil"></i> Edit Device
-                        </a>
-                        <button type="button" class="btn btn-outline-info btn-sm mb-2" data-bs-toggle="modal"
-                            data-bs-target="#moveLocationModal" data-device-id="1">
-                            <i class="fa fa-map-marker"></i> Move Location
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm mb-2"
-                            onclick="return confirm('Are you sure?')">
-                            <i class="fa fa-trash"></i> Delete Device
-                        </button>
-                        <a href="#" class="btn btn-outline-primary btn-sm mb-2">
-                            <i class="fa fa-print"></i> Print QR Code
-                        </a>
-                        <a href="#" class="btn btn-outline-success btn-sm mb-2">
-                            <i class="fa fa-camera"></i> Add Photos
-                        </a>
-                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Map Location -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Device Location</h4>
+            </div>
+            <div class="card-body">
+                <div class="location-container mt-2" id="location-container">
+                    <img src="{{ asset('uploads/gedung/photo/building-a.jpg') }}" alt="Building Map"
+                        id="building-map">
+                    <!-- Marker at 50% from left, 40% from top -->
+                    <div class="marker" style="left: 50%; top: 40%;"></div>
+                </div>
+                <p class="mt-2"><strong>Coordinates:</strong> 50.00,40.00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location History -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Location History</h4>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Building</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gedung A</td>
+                            <td>Server Room 302</td>
+                            <td>16 Mar 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Gedung B</td>
+                            <td>Network Center</td>
+                            <td>10 Mar 2025</td>
+                        </tr>
+                        <tr>
+                            <td>Gedung A</td>
+                            <td>Storage Room 101</td>
+                            <td>02 Mar 2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Photos -->
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h4 class="card-title">Device Photos</h4>
+            </div>
+            <div class="col-auto">
+                <a href="#" class="btn btn-outline-success btn-sm">
+                    <i class="fa fa-camera"></i> Add Photos
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="device-photos">
+            <div class="photo-gallery">
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_front.jpg') }}" alt="Device Front View">
+                    <div class="photo-caption">Front View</div>
+                </div>
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_back.jpg') }}" alt="Device Back View">
+                    <div class="photo-caption">Back View</div>
+                </div>
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_installed.jpg') }}" alt="Device Installed">
+                    <div class="photo-caption">Installed in Rack</div>
+                </div>
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_serial.jpg') }}" alt="Serial Number">
+                    <div class="photo-caption">Serial Number</div>
+                </div>
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_connections.jpg') }}" alt="Device Connections">
+                    <div class="photo-caption">Cable Connections</div>
+                </div>
+                <div class="photo-item">
+                    <img src="{{ asset('uploads/devices/device_label.jpg') }}" alt="Device Label">
+                    <div class="photo-caption">Device Label</div>
                 </div>
             </div>
         </div>
@@ -589,8 +684,52 @@
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof($.fn.select2) !== 'undefined') {
-                $('.select2').select2();
+                $('.select2').select2({
+                    dropdownParent: $('#moveLocationModal')
+                });
             }
+
+            // 3D Model controls functionality
+            document.getElementById('rotate-left').addEventListener('click', function() {
+                console.log('Rotate Left clicked');
+                // Implementasi kontrol rotasi ke kiri
+            });
+
+            document.getElementById('rotate-right').addEventListener('click', function() {
+                console.log('Rotate Right clicked');
+                // Implementasi kontrol rotasi ke kanan
+            });
+
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                console.log('Zoom In clicked');
+                // Implementasi kontrol zoom in
+            });
+
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                console.log('Zoom Out clicked');
+                // Implementasi kontrol zoom out
+            });
+
+            document.getElementById('model-view').addEventListener('change', function() {
+                const view = this.value;
+                console.log('View changed to:', view);
+                // Implementasi perubahan tampilan model
+            });
+
+            document.getElementById('animation-play').addEventListener('click', function() {
+                console.log('Animation Play clicked');
+                // Implementasi memulai animasi
+            });
+
+            document.getElementById('animation-pause').addEventListener('click', function() {
+                console.log('Animation Pause clicked');
+                // Implementasi pause animasi
+            });
+
+            document.getElementById('auto-rotate').addEventListener('change', function() {
+                console.log('Auto Rotate changed:', this.checked);
+                // Implementasi kontrol auto-rotate
+            });
 
             // Save location button handler
             document.getElementById('btnSimpanLocation').addEventListener('click', function() {
