@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -44,5 +45,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the role associated with the user.
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole($roleName)
+    {
+        return $this->role->role === $roleName;
+    }
+
+    /**
+     * Check if user has specific roles
+     */
+    public function hasAnyRole($roles)
+    {
+        return in_array($this->role->role, $roles);
+    }
+
+    /**
+     * Check if user has permission through role
+     */
+    public function hasPermission($permission)
+    {
+        return $this->role->hasPermission($permission);
+    }
+
+    /**
+     * Get user's sessions
+     */
+    public function sessions()
+    {
+        return $this->hasMany(Session::class);
     }
 }
