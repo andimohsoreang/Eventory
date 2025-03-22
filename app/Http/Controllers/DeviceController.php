@@ -100,8 +100,9 @@ class DeviceController extends Controller
     /**
      * Menampilkan detail satu device.
      */
-    public function show(Device $device)
+    public function show($id)
     {
+        $device = Device::find($id);
         return view('admin.devices.show', compact('device'));
     }
 

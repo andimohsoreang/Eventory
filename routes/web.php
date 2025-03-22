@@ -63,13 +63,12 @@ Route::delete('/admin/gedung/{gedung}', [GedungController::class, 'destroy'])->n
 Route::get('/admin/device', [DeviceController::class, 'index'])->name('admin.device');
 Route::get('/admin/device/create', [DeviceController::class, 'create'])->name('admin.device.create');
 Route::post('/admin/device', [DeviceController::class, 'store'])->name('admin.device.store');
-Route::get('/admin/device/{device}', [DeviceController::class, 'show'])->name('admin.device.show');
+Route::get('/admin/device/{id}/show', [DeviceController::class, 'show'])->name('admin.device.show');
 Route::get('/admin/device/{device}/edit', [DeviceController::class, 'edit'])->name('admin.device.edit');
 Route::put('/admin/device/{device}', [DeviceController::class, 'update'])->name('admin.device.update');
 Route::delete('/admin/device/{device}', [DeviceController::class, 'destroy'])->name('admin.device.destroy');
 Route::post('/admin/device/move-location', [DeviceController::class, 'moveLocation'])->name('admin.device.move-location');
+Route::get('admin/devices/{id}/details', [DeviceController::class, 'show'])->name('admin.device.details');
 // Devices
 Route::get('admin/devices', [DeviceController::class, 'index'])->name('admin.device');
 // Route::get('admin/devices/create', [DeviceController::class, 'create'])->name('admin.device.create');
-Route::get('admin/devices/show', [DeviceController::class, 'show'])->name('admin.device.show');
-Route::get('admin/devices/details', [DeviceController::class, 'details'])->name('admin.device.details');

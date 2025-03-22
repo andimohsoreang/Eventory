@@ -100,47 +100,6 @@
             font-size: 0.9375rem;
         }
 
-        .location-details {
-            background-color: var(--gray-light);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .location-details-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-dark);
-            font-size: 0.9375rem;
-        }
-
-        .location-details-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .location-details-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .location-details-label {
-            font-size: 0.75rem;
-            color: var(--gray-dark);
-            margin-bottom: 0.125rem;
-        }
-
-        .location-details-value {
-            font-size: 0.875rem;
-        }
-
         .device-qr {
             display: flex;
             flex-direction: column;
@@ -148,7 +107,8 @@
             margin-top: 1.5rem;
         }
 
-        .device-qr img {
+        .device-qr img,
+        .device-qr svg {
             border: 1px solid var(--gray-medium);
             padding: 0.5rem;
             border-radius: 0.5rem;
@@ -219,61 +179,6 @@
             text-align: center;
         }
 
-        .history-table thead th {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--gray-dark);
-        }
-
-        .history-table td {
-            font-size: 0.875rem;
-            padding: 0.625rem 0.75rem;
-            vertical-align: middle;
-        }
-
-        .spec-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .spec-item {
-            display: flex;
-            margin-bottom: 0.75rem;
-        }
-
-        .spec-label {
-            font-weight: 500;
-            min-width: 150px;
-            font-size: 0.875rem;
-        }
-
-        .spec-value {
-            font-size: 0.875rem;
-        }
-
-        .action-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            padding: 0.375rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .btn-icon {
-            width: 16px;
-            height: 16px;
-        }
-
         /* Modal styles */
         .modal-header {
             padding: 1rem 1.25rem;
@@ -312,207 +217,31 @@
 </div>
 
 <div class="row">
-    <!-- Main Content - Left Column -->
-    <div class="col-lg-8">
-        <!-- Device Information Card -->
-        <div class="card section-card">
-            <div class="card-body">
-                <div class="device-title">
-                    <h5 class="mb-0 fw-bold">Cisco RV340 Router</h5>
-                    <span class="device-id">DEV-001</span>
-                    <span class="status-badge status-active">Active</span>
-                </div>
-
-                <div class="info-grid mb-4">
-                    <div class="info-item">
-                        <div class="info-label">Serial Number</div>
-                        <div class="info-value">SN-12345678</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Last Maintenance</div>
-                        <div class="info-value">15 Mar 2025</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Installed By</div>
-                        <div class="info-value">John Technician</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Firmware Version</div>
-                        <div class="info-value">v2.0.3.18</div>
-                    </div>
-                </div>
-
-                <div class="location-details">
-                    <div class="location-details-title">
-                        <i class="fa fa-map-marker"></i> Current Location
-                    </div>
-                    <div class="location-details-list">
-                        <div class="location-details-item">
-                            <div class="location-details-label">Building</div>
-                            <div class="location-details-value">Gedung A - Pusat Data</div>
-                        </div>
-                        <div class="location-details-item">
-                            <div class="location-details-label">Floor</div>
-                            <div class="location-details-value">3rd Floor</div>
-                        </div>
-                        <div class="location-details-item">
-                            <div class="location-details-label">Room</div>
-                            <div class="location-details-value">Server Room 302</div>
-                        </div>
-                        <div class="location-details-item">
-                            <div class="location-details-label">Rack</div>
-                            <div class="location-details-value">Rack 05-B</div>
-                        </div>
-                        <div class="location-details-item">
-                            <div class="location-details-label">Position</div>
-                            <div class="location-details-value">U24-U25</div>
-                        </div>
-                        <div class="location-details-item">
-                            <div class="location-details-label">Notes</div>
-                            <div class="location-details-value">Connected to main power supply and backup generator
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Map Container -->
-                <div class="map-container">
-                    <img src="{{ asset('uploads/gedung/photo/building-a.jpg') }}" alt="Building Map" id="building-map">
-                    <div class="map-marker" style="left: 50%; top: 40%;"></div>
-                </div>
-                <div class="text-center mt-2 text-muted small">Coordinates: 50.00, 40.00</div>
-            </div>
-        </div>
-
-        <!-- Technical Specifications Card -->
-        <div class="card section-card">
+    <!-- Map Location -->
+    <div class="col-md-8">
+        <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Technical Specifications</h6>
+                <h4 class="card-title">Device Location</h4>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="spec-list">
-                            <li class="spec-item">
-                                <div class="spec-label">Model</div>
-                                <div class="spec-value">Cisco RV340</div>
-                            </li>
-                            <li class="spec-item">
-                                <div class="spec-label">Ports</div>
-                                <div class="spec-value">4x Gigabit Ethernet, 2x USB</div>
-                            </li>
-                            <li class="spec-item">
-                                <div class="spec-label">Firewall Throughput</div>
-                                <div class="spec-value">900 Mbps</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="spec-list">
-                            <li class="spec-item">
-                                <div class="spec-label">VPN Throughput</div>
-                                <div class="spec-value">150 Mbps</div>
-                            </li>
-                            <li class="spec-item">
-                                <div class="spec-label">Power Supply</div>
-                                <div class="spec-value">12V 2A</div>
-                            </li>
-                            <li class="spec-item">
-                                <div class="spec-label">Last Update</div>
-                                <div class="spec-value">14 Mar 2025</div>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="location-container mt-2" id="location-container">
+                    <img src="{{ asset('uploads/gedung/photo/building-a.jpg') }}" alt="Building Map" id="building-map">
+                    <!-- Marker at 50% from left, 40% from top -->
+                    <div class="marker" style="left: 50%; top: 40%;"></div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Device Photos Card -->
-        <div class="card section-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title">Device Photos</h6>
-                <button class="btn btn-sm btn-outline-primary">
-                    <i class="fa fa-plus me-1"></i> Add Photos
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="photo-gallery">
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_front.jpg') }}" alt="Device Front View">
-                        <div class="photo-caption">Front View</div>
-                    </div>
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_back.jpg') }}" alt="Device Back View">
-                        <div class="photo-caption">Back View</div>
-                    </div>
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_installed.jpg') }}" alt="Device Installed">
-                        <div class="photo-caption">Installed in Rack</div>
-                    </div>
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_serial.jpg') }}" alt="Serial Number">
-                        <div class="photo-caption">Serial Number</div>
-                    </div>
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_connections.jpg') }}" alt="Device Connections">
-                        <div class="photo-caption">Cable Connections</div>
-                    </div>
-                    <div class="photo-item">
-                        <img src="{{ asset('uploads/devices/device_label.jpg') }}" alt="Device Label">
-                        <div class="photo-caption">Device Label</div>
-                    </div>
-                </div>
+                <p class="mt-2"><strong>Coordinates:</strong> 50.00,40.00</p>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar - Right Column -->
-    <div class="col-lg-4">
-        <!-- Actions Card -->
-        <div class="card section-card">
+    <!-- Location History -->
+    <div class="col-md-4">
+        <div class="card">
             <div class="card-header">
-                <h6 class="card-title">Actions</h6>
-            </div>
-            <div class="card-body">
-                <div class="action-buttons">
-                    <button class="btn btn-outline-warning action-button">
-                        <i class="fa fa-pencil btn-icon"></i> Edit Device
-                    </button>
-                    <button class="btn btn-outline-info action-button" data-bs-toggle="modal"
-                        data-bs-target="#moveLocationModal" data-device-id="1">
-                        <i class="fa fa-map-marker btn-icon"></i> Move Location
-                    </button>
-                    <button class="btn btn-outline-primary action-button">
-                        <i class="fa fa-print btn-icon"></i> Print QR Code
-                    </button>
-                    <button class="btn btn-outline-danger action-button" onclick="return confirm('Are you sure?')">
-                        <i class="fa fa-trash btn-icon"></i> Delete Device
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- QR Code Card -->
-        <div class="card section-card">
-            <div class="card-header">
-                <h6 class="card-title">QR Code</h6>
-            </div>
-            <div class="card-body text-center">
-                <div class="device-qr">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DEV-001" alt="QR Code"
-                        width="150">
-                    <div class="device-qr-label">Scan to view device details</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Location History Card -->
-        <div class="card section-card">
-            <div class="card-header">
-                <h6 class="card-title">Location History</h6>
+                <h4 class="card-title">Location History</h4>
             </div>
             <div class="card-body p-0">
-                <table class="table table-sm history-table mb-0">
+                <table class="table table-striped mb-0">
                     <thead>
                         <tr>
                             <th>Building</th>
@@ -540,16 +269,166 @@
                 </table>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content - Left Column -->
+    <div class="col-lg-8">
+        <!-- Device Information Card -->
+        <div class="card section-card">
+            <div class="card-body">
+                <div class="device-title">
+                    <h5 class="mb-0 fw-bold">{{ $device->tipe ? $device->tipe->name : 'Unknown Device' }}</h5>
+                    <span class="device-id">{{ $device->device_id }}</span>
+                    <span class="status-badge {{ $device->isActive ? 'status-active' : 'status-inactive' }}">
+                        {{ $device->isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+
+                <div class="info-grid mb-4">
+                    @if ($device->sticekr)
+                        <div class="info-item">
+                            <div class="info-label">Serial Key</div>
+                            <div class="info-value">{{ $device->sticekr }}</div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- QR Code Display -->
+                <div class="device-qr">
+                    @if ($device->qr)
+                        {!! $device->qr !!}
+                    @else
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $device->device_id }}"
+                            alt="QR Code" width="150">
+                    @endif
+                    <div class="device-qr-label">Scan to view device details</div>
+                </div>
+
+                <!-- Map Container (Static for now) -->
+                <div class="map-container">
+                    <img src="{{ asset('uploads/gedung/photo/building-a.jpg') }}" alt="Building Map" id="building-map">
+                    <div class="map-marker" style="left: 50%; top: 40%;"></div>
+                </div>
+                <div class="text-center mt-2 text-muted small">Coordinates: 50.00, 40.00</div>
+            </div>
+        </div>
+
+        <!-- Device Photos Card -->
+        <div class="card section-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title">Device Photos</h6>
+            </div>
+            <div class="card-body">
+                <div class="photo-gallery">
+                    @if ($device->foto_depan)
+                        <div class="photo-item">
+                            <img src="{{ asset($device->foto_depan) }}" alt="Device Front View">
+                            <div class="photo-caption">Front View</div>
+                        </div>
+                    @endif
+                    @if ($device->foto_belakang)
+                        <div class="photo-item">
+                            <img src="{{ asset($device->foto_belakang) }}" alt="Device Back View">
+                            <div class="photo-caption">Back View</div>
+                        </div>
+                    @endif
+                    @if ($device->foto_terpasang)
+                        <div class="photo-item">
+                            <img src="{{ asset($device->foto_terpasang) }}" alt="Device Installed">
+                            <div class="photo-caption">Installed in Rack</div>
+                        </div>
+                    @endif
+                    @if ($device->foto_serial)
+                        <div class="photo-item">
+                            <img src="{{ asset($device->foto_serial) }}" alt="Device Serial">
+                            <div class="photo-caption">Device Serial</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar - Right Column -->
+    <div class="col-lg-4">
+        <!-- Actions Card -->
+        <div class="card section-card">
+            <div class="card-header">
+                <h6 class="card-title">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="action-buttons">
+                    <button class="btn btn-outline-warning action-button">
+                        <i class="fa fa-pencil btn-icon"></i> Edit Device
+                    </button>
+                    <button class="btn btn-outline-info action-button" data-bs-toggle="modal"
+                        data-bs-target="#moveLocationModal" data-device-id="{{ $device->device_id }}">
+                        <i class="fa fa-map-marker btn-icon"></i> Move Location
+                    </button>
+                    <button class="btn btn-outline-primary action-button">
+                        <i class="fa fa-print btn-icon"></i> Print QR Code
+                    </button>
+                    <button class="btn btn-outline-danger action-button" onclick="return confirm('Are you sure?')">
+                        <i class="fa fa-trash btn-icon"></i> Delete Device
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location History Card -->
+        @if ($device->location && $device->location->count() > 0)
+            <div class="card section-card">
+                <div class="card-header">
+                    <h6 class="card-title">Location History</h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm history-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Building</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($device->location as $loc)
+                                <tr>
+                                    <td>{{ $loc->building ?? '-' }}</td>
+                                    <td>{{ $loc->room ?? '-' }}</td>
+                                    <td>{{ $loc->updated_at->format('d M Y') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
 
         <!-- 3D Model Placeholder -->
+
         <div class="card section-card">
             <div class="card-header">
                 <h6 class="card-title">3D Model</h6>
             </div>
             <div class="card-body">
-                <div class="text-center p-4 bg-light rounded">
-                    <i class="fa fa-cube fa-3x text-muted mb-3"></i>
-                    <p class="mb-0 text-muted">3D model preview will appear here</p>
+                <div class="card-body">
+                    @if ($device->tipe->file)
+                        <model-viewer class="product-3d-viewer" alt="Model 3D {{ $device->tipe->name }}"
+                            src="{{ $device->tipe->file_url }}" shadow-intensity="1" camera-controls
+                            touch-action="pan-y"
+                            style="width: 100%; height: 500px; background-color: #f0f0f0; border-radius: 8px;">
+                        </model-viewer>
+                        <div class="text-center mt-3">
+                            <p class="text-muted">Gunakan mouse untuk memutar, zoom, dan pan model.</p>
+                        </div>
+                    @else
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-cube fa-4x mb-3"></i>
+                            <p>Tidak ada model 3D yang tersedia untuk tipe ini.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -567,25 +446,19 @@
             </div>
             <div class="modal-body">
                 <form id="moveLocationForm" class="row g-3">
-                    <input type="hidden" name="device_id" id="device-id-input" value="1">
-
-                    <div class="col-md-6">
-                        <label for="serial_key" class="form-label">Serial Key</label>
-                        <input type="text" name="serial_key" id="serial_key" class="form-control"
-                            value="SN-12345678" placeholder="Enter device serial key" />
-                        <div class="form-text">Enter the device serial key for verification</div>
-                    </div>
-
+                    <input type="hidden" name="device_id" id="device-id-input" value="{{ $device->device_id }}">
                     <div class="col-md-6">
                         <label for="gedung_id" class="form-label">Building</label>
                         <select name="gedung_id" id="gedung_id" class="form-control select2" required>
                             <option value="" selected hidden>-- Select Building --</option>
-                            <option value="1" data-image="uploads/gedung/photo/building-a.jpg">Gedung A</option>
-                            <option value="2" data-image="uploads/gedung/photo/building-b.jpg">Gedung B</option>
-                            <option value="3" data-image="uploads/gedung/photo/building-c.jpg">Gedung C</option>
+                            <option value="1" data-image="{{ asset('uploads/gedung/photo/building-a.jpg') }}">
+                                Gedung A</option>
+                            <option value="2" data-image="{{ asset('uploads/gedung/photo/building-b.jpg') }}">
+                                Gedung B</option>
+                            <option value="3" data-image="{{ asset('uploads/gedung/photo/building-c.jpg') }}">
+                                Gedung C</option>
                         </select>
                     </div>
-
                     <div class="col-md-6">
                         <label for="floor" class="form-label">Floor</label>
                         <select name="floor" id="floor" class="form-control select2" required>
@@ -596,31 +469,26 @@
                             <option value="4">4th Floor</option>
                         </select>
                     </div>
-
                     <div class="col-md-6">
                         <label for="room" class="form-label">Room</label>
                         <input type="text" name="room" id="room" class="form-control"
                             placeholder="Enter room number or name" />
                     </div>
-
                     <div class="col-md-6">
                         <label for="rack" class="form-label">Rack</label>
                         <input type="text" name="rack" id="rack" class="form-control"
                             placeholder="Enter rack identifier (e.g. Rack 05-B)" />
                     </div>
-
                     <div class="col-md-6">
                         <label for="position" class="form-label">Position</label>
                         <input type="text" name="position" id="position" class="form-control"
                             placeholder="Enter position (e.g. U24-U25)" />
                     </div>
-
                     <div class="col-12">
                         <label for="notes" class="form-label">Notes</label>
                         <textarea name="notes" id="notes" class="form-control" rows="2"
                             placeholder="Add notes about this location"></textarea>
                     </div>
-
                     <div class="col-12" id="building-image-container" style="display:none;">
                         <label class="form-label">Building Image <small class="text-muted">(Click on the image to set
                                 location)</small></label>
@@ -642,30 +510,23 @@
     <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-
     <script>
-        let marker = null; // Untuk melacak marker yang telah dibuat
+        let marker = null; // Track the created marker
 
-        // Handle modal opening dan set device id pada form
+        // When the modal opens, set the device id and reset the form fields
         const moveLocationModal = document.getElementById('moveLocationModal');
         moveLocationModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget; // Button yang memicu modal
-            const deviceId = button.getAttribute('data-device-id'); // Ambil device id
-
-            // Set device id di input tersembunyi
+            const button = event.relatedTarget; // Button that triggered the modal
+            const deviceId = button.getAttribute('data-device-id'); // Get device id
             document.getElementById('device-id-input').value = deviceId;
-
-            // Set default serial key
-            document.getElementById('serial_key').value = "SN-12345678";
-
-            // Pastikan marker dihapus saat modal dibuka kembali
+            // Reset marker and location field
             marker = null;
             document.getElementById('location').value = '';
             document.getElementById('building-image-container').style.display = 'none';
             document.getElementById('building-image').innerHTML = '';
         });
 
-        // Handle perubahan pada select gedung dan tampilkan gambar gedung
+        // When the building selection changes, display the building image
         document.getElementById('gedung_id').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const buildingImageUrl = selectedOption.getAttribute('data-image');
@@ -676,33 +537,21 @@
                 buildingImageContainer.style.display = 'block';
                 buildingImage.innerHTML =
                     `<img src="${buildingImageUrl}" id="building-map" alt="Building Image" style="max-width: 100%; height: auto; cursor: crosshair;" />`;
-
-                // Reset input lokasi
                 document.getElementById('location').value = '';
 
                 const buildingMap = document.getElementById('building-map');
-
-                // Tambahkan event listener klik pada gambar
                 buildingMap.addEventListener('click', function(e) {
                     const rect = buildingMap.getBoundingClientRect();
-                    // Hitung posisi klik relatif terhadap gambar
                     const clickX = e.clientX - rect.left;
                     const clickY = e.clientY - rect.top;
-
-                    // Hitung persentase posisi klik
                     const percentX = (clickX / buildingMap.clientWidth) * 100;
                     const percentY = (clickY / buildingMap.clientHeight) * 100;
-
-                    // Simpan lokasi dalam format persentase (misal: "50.00,25.00")
                     document.getElementById('location').value =
                         `${percentX.toFixed(2)},${percentY.toFixed(2)}`;
 
-                    // Hapus marker sebelumnya jika ada
                     if (marker) {
                         marker.remove();
                     }
-
-                    // Buat marker baru dengan posisi relative menggunakan persentase
                     marker = document.createElement('div');
                     marker.style.position = 'absolute';
                     marker.style.left = `${percentX.toFixed(2)}%`;
@@ -714,14 +563,12 @@
                     marker.style.border = '2px solid white';
                     marker.style.transform = 'translate(-50%, -50%)';
                     marker.style.pointerEvents = 'none';
-
-                    // Tempel marker ke dalam container gambar
                     buildingMap.parentElement.appendChild(marker);
                 });
             }
         });
 
-        // Initialize the page
+        // Initialize Select2 with modal as parent
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof($.fn.select2) !== 'undefined') {
                 $('.select2').select2({
@@ -729,23 +576,14 @@
                 });
             }
 
-            // Save location button handler
             document.getElementById('btnSimpanLocation').addEventListener('click', function() {
-                const serialKey = document.getElementById('serial_key').value;
-
-                if (!serialKey) {
-                    alert('Please enter a serial key');
-                    return;
-                }
-
-                // Implement your save logic here
+                // Implement your save logic here (AJAX or form submission)
                 Swal.fire({
                     title: 'Success!',
                     text: 'Device location updated successfully',
                     icon: 'success',
                     confirmButtonText: 'OK'
                 });
-
                 var modal = bootstrap.Modal.getInstance(document.getElementById('moveLocationModal'));
                 modal.hide();
             });
