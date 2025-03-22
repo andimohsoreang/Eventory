@@ -7,6 +7,7 @@
     <link href="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
 @endpush
+
 <div class="row">
     <div class="col-sm-12">
         <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
@@ -46,24 +47,38 @@
                                 <th>No.</th>
                                 <th>Nama Brand</th>
                                 <th>Slug</th>
-                                <th>Website</th>
                                 <th>Logo</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Cisco</td>
-                                <td>cisco</td>
-                                <td>https://cisco.com</td>
-                                <td><img src="path/to/cisco-logo.png" alt="Cisco Logo" style="height: 30px;"></td>
-                                <td>
-                                    <a href="javascript:void(0);" class="btn btn-outline-primary"
-                                        onclick="openEditModal('1', 'Cisco', 'cisco', 'Provider perangkat jaringan terkemuka', 'https://cisco.com', 'support@cisco.com')">Edit</a>
-                                    <a href="#" class="btn btn-outline-danger">Hapus</a>
-                                </td>
-                            </tr>
+                            @foreach ($brands as $item)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $item->name }}</td>
+                                    <td>{{ $item->slug }}</td>
+                                    <td>
+                                        @if ($item->logo)
+                                            <img src="{{ asset('storage/' . $item->logo) }}"
+                                                alt="{{ $item->name }} Logo" style="height: 30px;">
+                                        @else
+                                            <span>Tidak ada logo</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-outline-primary edit-btn" data-id="{{ $item->id }}"
+                                            data-name="{{ $item->name }}" data-slug="{{ $item->slug }}">
+                                            Edit
+                                        </button>
+                                        <form action="{{ route('admin.brand.destroy', $item->id) }}" method="POST"
+                                            style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -82,7 +97,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div><!--end modal-header-->
             <div class="modal-body">
-                <form id="brandFrm" enctype="multipart/form-data">
+                <form id="brandFrm" enctype="multipart/form-data" method="POST"
+                    action="{{ route('admin.brand.store') }}">
+                    @csrf
                     <div class="mb-3 row">
                         <label for="brand_name" class="col-sm-3 col-form-label text-end">Nama Brand</label>
                         <div class="col-sm-9">
@@ -90,24 +107,15 @@
                                 placeholder="Masukkan nama brand">
                         </div>
                     </div>
-
                     <div class="mb-3 row">
                         <label for="slug" class="col-sm-3 col-form-label text-end">Slug</label>
                         <div class="col-sm-9">
                             <input class="form-control" type="text" id="slug" name="slug"
                                 placeholder="URL-friendly version (otomatis dari nama)">
-                            <small class="form-text text-muted">Slug akan otomatis dibuat dari nama brand</small>
+                            <small class="form-text text-muted">Slug akan otomatis dibuat dari nama brand, namun bisa
+                                diedit.</small>
                         </div>
                     </div>
-
-                    <div class="mb-3 row">
-                        <label for="description" class="col-sm-3 col-form-label text-end">Deskripsi</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="description" name="description" rows="3"
-                                placeholder="Deskripsi brand (opsional)"></textarea>
-                        </div>
-                    </div>
-
                     <div class="mb-3 row">
                         <label for="logo" class="col-sm-3 col-form-label text-end">Logo</label>
                         <div class="col-sm-9">
@@ -116,27 +124,11 @@
                             <small class="form-text text-muted">Format yang didukung: JPG, PNG, GIF, SVG</small>
                         </div>
                     </div>
-
-                    <div class="mb-3 row">
-                        <label for="website" class="col-sm-3 col-form-label text-end">Website</label>
-                        <div class="col-sm-9">
-                            <input type="url" name="website" id="website" class="form-control"
-                                placeholder="URL website resmi (opsional)">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 row">
-                        <label for="contact_info" class="col-sm-3 col-form-label text-end">Kontak Support</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="contact_info" name="contact_info" rows="2"
-                                placeholder="Informasi kontak support (opsional)"></textarea>
-                        </div>
-                    </div>
                 </form>
             </div><!--end modal-body-->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpan">Simpan</button>
+                <button type="submit" form="brandFrm" class="btn btn-primary" id="btnSimpan">Simpan</button>
             </div><!--end modal-footer-->
         </div><!--end modal-content-->
     </div><!--end modal-dialog-->
@@ -152,9 +144,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div><!--end modal-header-->
             <div class="modal-body">
-                <form id="editBrandFrm" enctype="multipart/form-data">
-                    <input type="hidden" id="edit_id_brand" name="uuid">
-
+                <form id="editBrandFrm" enctype="multipart/form-data" method="POST" action="">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="edit_id_brand" name="id">
                     <div class="mb-3 row">
                         <label for="edit_brand_name" class="col-sm-3 col-form-label text-end">Nama Brand</label>
                         <div class="col-sm-9">
@@ -162,24 +155,15 @@
                                 placeholder="Masukkan nama brand">
                         </div>
                     </div>
-
                     <div class="mb-3 row">
                         <label for="edit_slug" class="col-sm-3 col-form-label text-end">Slug</label>
                         <div class="col-sm-9">
                             <input class="form-control" type="text" id="edit_slug" name="slug"
                                 placeholder="URL-friendly version (otomatis dari nama)">
-                            <small class="form-text text-muted">Slug akan otomatis dibuat dari nama brand</small>
+                            <small class="form-text text-muted">Slug akan otomatis dibuat dari nama brand, namun bisa
+                                diedit.</small>
                         </div>
                     </div>
-
-                    <div class="mb-3 row">
-                        <label for="edit_description" class="col-sm-3 col-form-label text-end">Deskripsi</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="edit_description" name="description" rows="3"
-                                placeholder="Deskripsi brand (opsional)"></textarea>
-                        </div>
-                    </div>
-
                     <div class="mb-3 row">
                         <label for="edit_logo" class="col-sm-3 col-form-label text-end">Logo</label>
                         <div class="col-sm-9">
@@ -193,99 +177,60 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="mb-3 row">
-                        <label for="edit_website" class="col-sm-3 col-form-label text-end">Website</label>
-                        <div class="col-sm-9">
-                            <input type="url" name="website" id="edit_website" class="form-control"
-                                placeholder="URL website resmi (opsional)">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 row">
-                        <label for="edit_contact_info" class="col-sm-3 col-form-label text-end">Kontak Support</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="edit_contact_info" name="contact_info" rows="2"
-                                placeholder="Informasi kontak support (opsional)"></textarea>
-                        </div>
-                    </div>
                 </form>
             </div><!--end modal-body-->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnUpdate">Update</button>
+                <button type="submit" form="editBrandFrm" class="btn btn-primary" id="btnUpdate">Update</button>
             </div><!--end modal-footer-->
         </div><!--end modal-content-->
     </div><!--end modal-dialog-->
 </div><!--end modal-->
 
-<!-- JavaScript for Modals -->
+<!-- JavaScript for Modals and Slug Generation -->
 <script>
-    // Function to generate slug from name
+    // Fungsi untuk menghasilkan slug dari nama
     function generateSlug(text) {
         return text.toString().toLowerCase()
-            .replace(/\s+/g, '-') // Replace spaces with -
-            .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-            .replace(/\-\-+/g, '-') // Replace multiple - with single -
-            .replace(/^-+/, '') // Trim - from start of text
-            .replace(/-+$/, ''); // Trim - from end of text
+            .replace(/\s+/g, '-') // Ganti spasi dengan -
+            .replace(/[^\w\-]+/g, '') // Hapus karakter yang tidak diizinkan
+            .replace(/\-\-+/g, '-') // Ganti multiple - dengan single -
+            .replace(/^-+/, '') // Hilangkan - dari awal teks
+            .replace(/-+$/, ''); // Hilangkan - dari akhir teks
     }
 
-    // Add event listener for automatically filling the slug field
+    // Update slug otomatis ketika mengetik nama pada form tambah
     document.getElementById('brand_name').addEventListener('keyup', function() {
         document.getElementById('slug').value = generateSlug(this.value);
     });
 
+    // Update slug otomatis ketika mengetik nama pada form edit
     document.getElementById('edit_brand_name').addEventListener('keyup', function() {
         document.getElementById('edit_slug').value = generateSlug(this.value);
     });
 
-    // Function to open edit modal with data
-    function openEditModal(id, name, slug, description, website, contact_info) {
+    // Fungsi untuk membuka modal edit dengan data yang sudah ada
+    function openEditModal(id, name, slug) {
         document.getElementById('edit_id_brand').value = id;
         document.getElementById('edit_brand_name').value = name;
         document.getElementById('edit_slug').value = slug;
-        document.getElementById('edit_description').value = description;
-        document.getElementById('edit_website').value = website;
-        document.getElementById('edit_contact_info').value = contact_info;
 
-        // Set current logo if applicable (replace with actual logo path)
-        document.getElementById('current_logo').src = 'path/to/logos/' + slug + '-logo.png';
+        // Set action URL form edit (sesuaikan dengan route update)
+        var updateUrl = "{{ route('admin.brand.update', ':id') }}";
+        updateUrl = updateUrl.replace(':id', id);
+        document.getElementById('editBrandFrm').action = updateUrl;
 
-        // Open the modal
+        // Set current logo (jika ada); sesuaikan path jika diperlukan
+        document.getElementById('current_logo').src = "{{ asset('storage/logos/') }}/" + slug + ".png";
+
         var editModal = new bootstrap.Modal(document.getElementById('editModalLarge'));
         editModal.show();
     }
-
-    // Initialize when the add modal opens
-    document.getElementById('addModalLarge').addEventListener('shown.bs.modal', function() {
-        document.getElementById('brand_name').focus();
-    });
-
-    // Initialize when the edit modal opens
-    document.getElementById('editModalLarge').addEventListener('shown.bs.modal', function() {
-        document.getElementById('edit_brand_name').focus();
-    });
-
-    // Add event listener for the save button
-    document.getElementById('btnSimpan').addEventListener('click', function() {
-        // Add your save logic here
-        // For example: document.getElementById('brandFrm').submit();
-        alert('Form submitted: Tambah Brand');
-    });
-
-    // Add event listener for the update button
-    document.getElementById('btnUpdate').addEventListener('click', function() {
-        // Add your update logic here
-        // For example: document.getElementById('editBrandFrm').submit();
-        alert('Form submitted: Update Brand');
-    });
 </script>
 
 @push('scripts')
     <script src="{{ asset('dist/assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/datatable.init.js') }}"></script>
-
     <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/sweet-alert.init.js') }}"></script>
 @endpush

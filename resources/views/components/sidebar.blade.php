@@ -45,9 +45,9 @@
                                  <li class="nav-item">
                                      <a href="{{ route('admin.category') }}" class="nav-link ">Category Dana</a>
                                  </li><!--end nav-item-->
-                                 <li class="nav-item">
+                                 {{-- <li class="nav-item">
                                      <a href="/admin/catdevice" class="nav-link ">Category Device</a>
-                                 </li><!--end nav-item-->
+                                 </li><!--end nav-item--> --}}
                                  <li class="nav-item">
                                      <a href="/admin/brands" class="nav-link ">Brand</a>
                                  </li><!--end nav-item-->

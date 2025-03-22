@@ -9,6 +9,7 @@
     <!-- Select2 -->
     <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
 @endpush
+
 <div class="row">
     <div class="col-sm-12">
         <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
@@ -24,6 +25,7 @@
     </div>
 </div>
 
+<!-- Tabel Data Gedung -->
 <div class="row justify-content-center">
     <div class="col-12">
         <div class="card">
@@ -54,20 +56,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Gedung Example</td>
-                                <td>Jakarta Pusat</td>
-                                <td>N/A</td>
-                                <td><img src="{{ asset('dist/assets/images/small/img-1.jpg') }}" alt="Gedung"
-                                        class="img-fluid rounded" width="100" height="100"></td>
-                                <td>
-                                    <a href="/admin/gedung/show" class="btn btn-outline-info">Detail</a>
-                                    <a href="javascript:void(0);" class="btn btn-outline-primary"
-                                        onclick="openEditModal('1', 'Gedung Example', 'Jakarta Pusat', '', 'img-1.jpg')">Edit</a>
-                                    <a href="#" class="btn btn-outline-danger">Hapus</a>
-                                </td>
-                            </tr>
+                            @foreach ($gedungs as $item)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $item->name }}</td>
+                                    <td>{{ $item->lokasi }}</td>
+                                    <td>
+                                        {{ $item->parent ? $item->parent->name : 'N/A' }}
+                                    </td>
+                                    <td>
+                                        @if ($item->photo)
+                                            <img src="{{ $item->photo_url }}" alt="{{ $item->name }}"
+                                                class="img-fluid rounded" width="100" height="100">
+                                        @else
+                                            <span>-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.gedung.show', $item->id) }}"
+                                            class="btn btn-outline-info">Detail</a>
+                                        <button class="btn btn-outline-primary edit-btn"
+                                            onclick="openEditModal('{{ $item->id }}', '{{ $item->name }}', '{{ $item->lokasi }}', '{{ $item->parent_id }}', '{{ $item->photo ? basename($item->photo) : '' }}')">
+                                            Edit
+                                        </button>
+                                        <form action="{{ route('admin.gedung.destroy', $item->id) }}" method="POST"
+                                            style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger"
+                                                onclick="return confirm('Yakin hapus data?')">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -76,7 +97,7 @@
     </div>
 </div>
 
-<!-- Modal Add -->
+<!-- Modal Add Gedung -->
 <div class="modal fade bd-example-modal-lg" id="addModalLarge" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -84,9 +105,11 @@
             <div class="modal-header">
                 <h6 class="modal-title m-0" id="myLargeModalLabel">Tambah Gedung</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div><!--end modal-header-->
+            </div><!-- end modal-header -->
             <div class="modal-body">
-                <form id="gedungFrm" enctype="multipart/form-data">
+                <form id="gedungFrm" enctype="multipart/form-data" method="POST"
+                    action="{{ route('admin.gedung.store') }}">
+                    @csrf
                     <div class="mb-3 row">
                         <label for="name" class="col-sm-3 col-form-label text-end">Nama Gedung</label>
                         <div class="col-sm-9">
@@ -100,7 +123,6 @@
                             <textarea class="form-control" id="lokasi" name="lokasi" rows="4" placeholder="Masukkan lokasi gedung"></textarea>
                         </div>
                     </div>
-
                     <div class="mb-3 row">
                         <label for="slug" class="col-sm-3 col-form-label text-end">Slug</label>
                         <div class="col-sm-9">
@@ -109,38 +131,35 @@
                             <small class="form-text text-muted">Slug akan otomatis dibuat dari nama gedung</small>
                         </div>
                     </div>
-
                     <div class="mb-3 row">
                         <label for="parent_id" class="col-sm-3 col-form-label text-end">Parent Gedung</label>
                         <div class="col-sm-9">
                             <select class="form-control select2" id="parent_id" name="parent_id">
                                 <option value="">Pilih Parent Gedung</option>
-                                <option value="1">Gedung A</option>
-                                <option value="2">Gedung B</option>
-                                <option value="3">Gedung C</option>
-                                <!-- Parent Gedung akan dirender secara dinamis di sini -->
+                                @foreach ($parent as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-3 row">
-                        <label for="photo" class="col-sm-3 col-form-label text-end">Denah Gedung</label>
+                        <label for="photo" class="col-sm-3 col-form-label text-end">Foto / Denah</label>
                         <div class="col-sm-9">
                             <input type="file" name="photo" id="photo" class="form-control"
                                 accept="image/*">
                         </div>
                     </div>
                 </form>
-            </div><!--end modal-body-->
+            </div><!-- end modal-body -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpan">Simpan</button>
-            </div><!--end modal-footer-->
-        </div><!--end modal-content-->
-    </div><!--end modal-dialog-->
-</div><!--end modal-->
+                <button type="submit" form="gedungFrm" class="btn btn-primary" id="btnSimpan">Simpan</button>
+            </div><!-- end modal-footer -->
+        </div><!-- end modal-content -->
+    </div><!-- end modal-dialog -->
+</div><!-- end modal -->
 
-<!-- Modal Edit -->
+<!-- Modal Edit Gedung -->
 <div class="modal fade bd-example-modal-lg" id="editModalLarge" tabindex="-1" role="dialog"
     aria-labelledby="myEditModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -148,11 +167,12 @@
             <div class="modal-header">
                 <h6 class="modal-title m-0" id="myEditModalLabel">Edit Gedung</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div><!--end modal-header-->
+            </div><!-- end modal-header -->
             <div class="modal-body">
-                <form id="editGedungFrm" enctype="multipart/form-data">
-                    <input type="hidden" id="edit_id_gedung" name="id_gedung">
-
+                <form id="editGedungFrm" enctype="multipart/form-data" method="POST" action="">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="edit_id_gedung" name="id">
                     <div class="mb-3 row">
                         <label for="edit_name" class="col-sm-3 col-form-label text-end">Nama Gedung</label>
                         <div class="col-sm-9">
@@ -174,22 +194,20 @@
                             <small class="form-text text-muted">Slug akan otomatis dibuat dari nama gedung</small>
                         </div>
                     </div>
-
                     <div class="mb-3 row">
                         <label for="edit_parent_id" class="col-sm-3 col-form-label text-end">Parent Gedung</label>
                         <div class="col-sm-9">
                             <select class="form-control" id="edit_parent_id" name="parent_id">
                                 <option value="">Pilih Parent Gedung</option>
-                                <option value="1">Gedung A</option>
-                                <option value="2">Gedung B</option>
-                                <option value="3">Gedung C</option>
-                                <!-- Parent Gedung akan dirender secara dinamis di sini -->
+                                @foreach ($parent as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @endforeach
+
                             </select>
                         </div>
                     </div>
-
                     <div class="mb-3 row">
-                        <label for="edit_photo" class="col-sm-3 col-form-label text-end">Denah Gedung</label>
+                        <label for="edit_photo" class="col-sm-3 col-form-label text-end">Foto / Denah</label>
                         <div class="col-sm-9">
                             <input type="file" name="photo" id="edit_photo" class="form-control"
                                 accept="image/*">
@@ -198,85 +216,78 @@
                         </div>
                     </div>
                 </form>
-            </div><!--end modal-body-->
+            </div><!-- end modal-body -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnUpdate">Update</button>
-            </div><!--end modal-footer-->
-        </div><!--end modal-content-->
-    </div><!--end modal-dialog-->
-</div><!--end modal-->
+                <button type="submit" form="editGedungFrm" class="btn btn-primary" id="btnUpdate">Update</button>
+            </div><!-- end modal-footer -->
+        </div><!-- end modal-content -->
+    </div><!-- end modal-dialog -->
+</div><!-- end modal -->
 
-<!-- JavaScript for Modals -->
+<!-- JavaScript for Modals and Slug Generation -->
 <script>
-    // Function to generate slug from name
+    // Fungsi untuk menghasilkan slug dari nama
     function generateSlug(text) {
         return text.toString().toLowerCase()
-            .replace(/\s+/g, '-') // Replace spaces with -
-            .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-            .replace(/\-\-+/g, '-') // Replace multiple - with single -
-            .replace(/^-+/, '') // Trim - from start of text
-            .replace(/-+$/, ''); // Trim - from end of text
+            .replace(/\s+/g, '-') // Ganti spasi dengan -
+            .replace(/[^\w\-]+/g, '') // Hapus karakter yang tidak diizinkan
+            .replace(/\-\-+/g, '-') // Ganti multiple - dengan single -
+            .replace(/^-+/, '') // Hilangkan - dari awal teks
+            .replace(/-+$/, ''); // Hilangkan - dari akhir teks
     }
 
-    // Function for creating slug from gedung name field
+    // Fungsi untuk membuat slug dari input nama pada form tambah
     function createSlug() {
         let name = document.getElementById('name').value;
         document.getElementById('slug').value = generateSlug(name);
     }
 
-    // Function for creating slug from edit gedung name field
+    // Fungsi untuk membuat slug dari input nama pada form edit
     function createEditSlug() {
         let name = document.getElementById('edit_name').value;
         document.getElementById('edit_slug').value = generateSlug(name);
     }
 
+    // Fungsi untuk membuka modal edit dan mengisi data form edit
     function openEditModal(id, name, lokasi, parent_id, photo) {
         document.getElementById('edit_id_gedung').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_slug').value = generateSlug(name);
         document.getElementById('edit_lokasi').value = lokasi;
-
-        // Set dropdown value
         document.getElementById('edit_parent_id').value = parent_id;
 
-        // Set current photo info if applicable
+        // Set current photo info jika ada
         const currentPhotoSpan = document.getElementById('current_photo');
         if (currentPhotoSpan) {
-            // You would replace this with actual file name from your data
-            currentPhotoSpan.textContent = photo || 'None';
+            currentPhotoSpan.textContent = photo ? photo : 'None';
         }
 
-        // Open the modal
+        // Buka modal edit
         var editModal = new bootstrap.Modal(document.getElementById('editModalLarge'));
         editModal.show();
     }
 
-    // Initialize when the add modal opens
+    // Fokus input saat modal Add terbuka
     document.getElementById('addModalLarge').addEventListener('shown.bs.modal', function() {
         document.getElementById('name').focus();
     });
 
-    // Initialize when the edit modal opens
+    // Fokus input saat modal Edit terbuka
     document.getElementById('editModalLarge').addEventListener('shown.bs.modal', function() {
         document.getElementById('edit_name').focus();
     });
 
-    // Add event listener for the save button
+    // Event listener untuk tombol simpan dan update (gunakan form submission)
     document.getElementById('btnSimpan').addEventListener('click', function() {
-        // Add your save logic here
-        // For example: document.getElementById('gedungFrm').submit();
-        alert('Form submitted: Tambah Gedung');
+        document.getElementById('gedungFrm').submit();
     });
 
-    // Add event listener for the update button
     document.getElementById('btnUpdate').addEventListener('click', function() {
-        // Add your update logic here
-        // For example: document.getElementById('editGedungFrm').submit();
-        alert('Form submitted: Update Gedung');
+        document.getElementById('editGedungFrm').submit();
     });
 
-    // Initialize Select2 after DOM is fully loaded
+    // Inisialisasi Select2 untuk Parent Gedung
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof($.fn.select2) !== 'undefined') {
             $('#parent_id').select2({
@@ -289,10 +300,8 @@
 @push('scripts')
     <script src="{{ asset('dist/assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/datatable.init.js') }}"></script>
-
     <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/sweet-alert.init.js') }}"></script>
-
     <!-- Select2 -->
     <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
 @endpush

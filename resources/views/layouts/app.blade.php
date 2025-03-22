@@ -14,6 +14,8 @@
 
     @stack('links')
     <!-- App css -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <link href="{{ asset('dist/assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('dist/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('dist/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
@@ -48,6 +50,7 @@
         <!-- vendor js -->
 
         @stack('scripts')
+        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
         <script src="{{ asset('dist/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('dist/assets/libs/simplebar/simplebar.min.js') }}"></script>
 

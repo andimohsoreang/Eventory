@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Device extends Model
@@ -16,7 +16,12 @@ class Device extends Model
         'qr',
         'isActive',
         'category_dana_id',
-        'sticekr'
+        'brand_id',
+        'sticekr',
+        'foto_depan',
+        'foto_belakang',
+        'foto_terpasang',
+        'foto_serial',
     ];
 
     public function location()
@@ -44,6 +49,11 @@ class Device extends Model
         return $this->belongsTo(CategoryDana::class);
     }
 
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
     /**
      * Relasi dengan model Tipe (tipe perangkat)
      */
@@ -52,11 +62,4 @@ class Device extends Model
         return $this->belongsTo(Tipe::class);
     }
 
-    /**
-     * Relasi dengan model Gedung (gedung tempat perangkat berada)
-     */
-
-    /**
-     * Mendapatkan URL untuk QR code dalam format Base64.
-     */
 }
