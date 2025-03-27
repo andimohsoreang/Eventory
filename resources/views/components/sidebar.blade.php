@@ -39,9 +39,12 @@
                          </a>
                          <div class="collapse " id="sidebarAnalytics">
                              <ul class="nav flex-column">
-                                 <li class="nav-item">
-                                     <a href="{{ route('admin.account') }}" class="nav-link ">User</a>
-                                 </li><!--end nav-item-->
+                                 @if (Auth::user()->role == 'admin')
+                                     <li class="nav-item">
+                                         <a href="{{ route('admin.account') }}" class="nav-link ">User</a>
+                                     </li><!--end nav-item-->
+                                 @endif
+
                                  <li class="nav-item">
                                      <a href="{{ route('admin.category') }}" class="nav-link ">Category Dana</a>
                                  </li><!--end nav-item-->
@@ -95,7 +98,7 @@
                          </div><!--end startbarForms-->
                      </li><!--end nav-item-->
 
-                     <li class="nav-item">
+                     {{-- <li class="nav-item">
                          <a class="nav-link" href="#sidebarAuthentication" data-bs-toggle="collapse" role="button"
                              aria-expanded="false" aria-controls="sidebarAuthentication">
                              <i class="iconoir-fingerprint-lock-circle menu-icon"></i>
@@ -126,7 +129,7 @@
                                  </li><!--end nav-item-->
                              </ul><!--end nav-->
                          </div><!--end startbarAuthentication-->
-                     </li><!--end nav-item-->
+                     </li><!--end nav-item--> --}}
                  </ul><!--end navbar-nav--->
              </div>
          </div><!--end startbar-collapse-->

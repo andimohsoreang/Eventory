@@ -8,6 +8,22 @@
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
     <!-- Select2 -->
     <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <style>
+        .location-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+        #building-image-container-inner {
+            position: relative;
+        }
+    </style>
 @endpush
 
 <div class="row">
@@ -129,11 +145,10 @@
                                         </form>
                                         <a href="{{ route('admin.device.details', $device->id) }}"
                                             class="btn btn-outline-secondary btn-sm">Lihat Device</a>
-                                        <button type="button" class="btn btn-outline-info btn-sm move-location"
-                                            data-bs-toggle="modal" data-bs-target="#moveLocationModal"
-                                            data-device-id="{{ $device->device_id }}">
+                                        <a href="{{ route('admin.device.move-location-page', $device->device_id) }}"
+                                            class="btn btn-outline-info btn-sm">
                                             <i class="fa fa-map-marker-alt"></i> Move Location
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -173,10 +188,12 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 row" id="building-image-container" style="display:none; position:relative;">
+                    <div class="mb-3 row" id="building-image-container" style="display:none;">
                         <label for="location" class="col-sm-3 col-form-label text-end">Building Image</label>
-                        <div class="col-sm-9" id="building-image-container-inner">
+                        <div class="col-sm-9">
+                            <div id="building-image-container-inner">
                             <!-- Building image will appear here -->
+                            </div>
                         </div>
                     </div>
 
@@ -206,55 +223,105 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('.select2').select2();
+        // Initialize Select2 with option to maintain DOM properties
+        $('.select2').select2({
+            width: '100%'
+        });
 
         // Show modal and assign device id when clicking "Move Location"
         $('.move-location').click(function() {
             let deviceId = $(this).data('device-id');
             $('#device-id-input').val(deviceId);
+            
+            // Reset form
+            $('#gedung_id').val('').trigger('change');
+            $('#location').val('');
+            $('#building-image-container').hide();
+            $('.location-marker').remove();
+            
+            // Show the modal
             var modal = new bootstrap.Modal(document.getElementById('moveLocationModal'));
             modal.show();
         });
 
-        // Use the Select2 event on gedung_id to update building image
-        $('#gedung_id').on('select2:select', function(e) {
-            // Instead of using e.params.data.element, query the selected option directly.
-            let buildingImageUrl = $('#gedung_id option:selected').data('image');
+        // When building is selected
+        $('#gedung_id').on('change', function() {
+            // Get the selected option's data-image attribute
+            const selectedOption = $(this).find('option:selected');
+            const buildingId = selectedOption.val();
+            
+            if (!buildingId) {
+                $('#building-image-container').hide();
+                return;
+            }
+            
+            // Get the image URL directly from the option's data attribute
+            const buildingImageUrl = selectedOption.attr('data-image');
+            console.log('Selected building ID:', buildingId);
+            console.log('Selected building image URL:', buildingImageUrl);
+            
             const container = $('#building-image-container');
             const imageContainerInner = $('#building-image-container-inner');
-            console.log('Selected building image URL:', buildingImageUrl);
+            
+            // Remove any existing markers
+            $('.location-marker').remove();
 
             if (buildingImageUrl) {
-                container.show();
+                // Display building image
                 imageContainerInner.html(
                     `<img src="${buildingImageUrl}" id="building-map" alt="Building Image" style="max-width: 100%; height: auto; cursor: crosshair;" />`
                 );
+                container.show();
                 $('#location').val('');
 
-                // Attach click event on the building image
+                // Add click event to building image after image is loaded
+                $('#building-map').on('load', function() {
+                    console.log('Building image loaded successfully');
+                }).on('error', function() {
+                    console.error('Error loading building image:', buildingImageUrl);
+                });
+                
+                // Add click event to building image
                 $('#building-map').off('click').on('click', function(e) {
+                    // Calculate click position as percentage of image dimensions
                     const rect = this.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const clickY = e.clientY - rect.top;
-                    const percentX = (clickX / this.clientWidth) * 100;
-                    const percentY = (clickY / this.clientHeight) * 100;
+                    const percentX = (clickX / this.width) * 100;
+                    const percentY = (clickY / this.height) * 100;
+                    
+                    // Save location as percentages
                     $('#location').val(`${percentX.toFixed(2)},${percentY.toFixed(2)}`);
+                    console.log('Location set:', $('#location').val());
 
+                    // Remove any existing markers and add new one
                     $('.location-marker').remove();
                     const marker = $('<div class="location-marker"></div>').css({
-                        left: `calc(${percentX.toFixed(2)}% - 10px)`,
-                        top: `calc(${percentY.toFixed(2)}% - 10px)`
+                        left: `${percentX}%`,
+                        top: `${percentY}%`
                     });
-                    $(this).parent().css('position', 'relative');
-                    $(this).parent().append(marker);
+                    $('#building-image-container-inner').append(marker);
                 });
             } else {
+                console.warn('No image URL available for building ID:', buildingId);
                 container.hide();
+                $('#location').val('');
             }
         });
 
         // Submit location via AJAX
         $('#btnSimpanLocation').click(function() {
+            // Validate inputs
+            if (!$('#gedung_id').val()) {
+                Swal.fire('Error!', 'Please select a building first.', 'error');
+                return;
+            }
+            
+            if (!$('#location').val()) {
+                Swal.fire('Error!', 'Please set the device location by clicking on the building image.', 'error');
+                return;
+            }
+
             let formData = new FormData($('#moveLocationForm')[0]);
             $.ajax({
                 url: "{{ route('admin.device.move-location') }}",
@@ -265,14 +332,17 @@
                 success: function(response) {
                     if (response.success) {
                         Swal.fire('Sukses!', response.message, 'success');
-                        var modal = bootstrap.Modal.getInstance(document.getElementById(
-                            'moveLocationModal'));
+                        var modal = bootstrap.Modal.getInstance(document.getElementById('moveLocationModal'));
                         modal.hide();
                         location.reload();
                     }
                 },
                 error: function(xhr) {
-                    Swal.fire('Error!', 'Gagal memindahkan lokasi perangkat.', 'error');
+                    let errorMessage = 'Gagal memindahkan lokasi perangkat.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error!', errorMessage, 'error');
                 }
             });
         });

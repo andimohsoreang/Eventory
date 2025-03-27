@@ -118,6 +118,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer@2.10.0/dist/model-viewer.min.js"></script>
-    <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>\
+    
 @endpush
 @endsection

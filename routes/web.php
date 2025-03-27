@@ -12,12 +12,8 @@ use App\Http\Controllers\GedungController;
 use App\Http\Controllers\TipeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-
-
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 
 // Authentication
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -25,7 +21,9 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/admin/account', [AccountController::class, 'index'])->name('admin.account');
-Route::get('/admin/account/create', [AccountController::class, 'create'])->name('admin.account.create');
+Route::post('/admin/account', [AccountController::class, 'store'])->name('admin.account.store');
+Route::put('/admin/account/{account}', [AccountController::class, 'update'])->name('admin.account.update');
+Route::delete('/admin/account/{account}', [AccountController::class, 'destroy'])->name('admin.account.destroy');
 
 // Dashboard
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -59,6 +57,8 @@ Route::get('/admin/gedung/{gedung}', [GedungController::class, 'show'])->name('a
 Route::post('/admin/gedung', [GedungController::class, 'store'])->name('admin.gedung.store');
 Route::put('/admin/gedung/{gedung}', [GedungController::class, 'update'])->name('admin.gedung.update');
 Route::delete('/admin/gedung/{gedung}', [GedungController::class, 'destroy'])->name('admin.gedung.destroy');
+Route::get('/admin/gedung/{gedung}/edit', [GedungController::class, 'edit'])->name('admin.gedung.edit');
+Route::get('/gedung/{gedung}/device', [\App\Http\Controllers\LandingController::class, 'gedungShow'])->name('public.gedung.show');
 
 Route::get('/admin/device', [DeviceController::class, 'index'])->name('admin.device');
 Route::get('/admin/device/create', [DeviceController::class, 'create'])->name('admin.device.create');
@@ -68,7 +68,9 @@ Route::get('/admin/device/{device}/edit', [DeviceController::class, 'edit'])->na
 Route::put('/admin/device/{device}', [DeviceController::class, 'update'])->name('admin.device.update');
 Route::delete('/admin/device/{device}', [DeviceController::class, 'destroy'])->name('admin.device.destroy');
 Route::post('/admin/device/move-location', [DeviceController::class, 'moveLocation'])->name('admin.device.move-location');
+Route::get('/admin/device/{deviceId}/move-location', [DeviceController::class, 'moveLocationPage'])->name('admin.device.move-location-page');
 Route::get('admin/devices/{id}/details', [DeviceController::class, 'show'])->name('admin.device.details');
 // Devices
 Route::get('admin/devices', [DeviceController::class, 'index'])->name('admin.device');
 // Route::get('admin/devices/create', [DeviceController::class, 'create'])->name('admin.device.create');
+Route::get('device/public/{device_id}', [DeviceController::class, 'publicShow'])->name('admin.device.public');

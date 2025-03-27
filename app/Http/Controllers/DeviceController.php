@@ -9,6 +9,7 @@ use App\Models\Gedung;
 use App\Models\Location;
 use App\Models\Tipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
 {
@@ -76,25 +77,67 @@ class DeviceController extends Controller
         return redirect()->route('admin.device')->with('success', 'Device berhasil ditambahkan');
     }
 
+    /**
+     * Display move location page for a specific device
+     */
+    public function moveLocationPage($deviceId)
+    {
+        // Find the device by device_id
+        $device = Device::where('device_id', $deviceId)->firstOrFail();
+        $gedungs = Gedung::all();
+        
+        // Get current location if exists
+        $currentLocation = Location::where('device_id', $device->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+            
+        return view('admin.devices.move_location', compact('device', 'gedungs', 'currentLocation'));
+    }
+
+    /**
+     * Process the move location request from the form
+     */
     public function moveLocation(Request $request)
 {
     $request->validate([
-        'device_id' => 'required|exists:devices,id',
+            'device_id' => 'required|string|exists:devices,device_id',
         'gedung_id' => 'required|exists:gedungs,id',
         'location' => 'required|string|max:255',
     ]);
 
+        // Find the device by device_id
+        $device = Device::where('device_id', $request->device_id)->first();
+        
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device not found.',
+            ], 404);
+        }
+
+        // Log for debugging
+        Log::info('Moving device location', [
+            'device_id' => $request->device_id,
+            'device' => $device->id,
+            'gedung_id' => $request->gedung_id,
+            'location' => $request->location,
+        ]);
+
     $location = Location::create([
-        'device_id' => $request->device_id,
+            'device_id' => $device->id, // Use the actual device ID (primary key)
         'gedung_id' => $request->gedung_id,
         'location' => $request->location,
     ]);
 
+        if ($request->ajax()) {
     return response()->json([
         'success' => true,
         'message' => 'Lokasi perangkat berhasil diperbarui.',
         'location' => $location,
     ]);
+        }
+        
+        return redirect()->route('admin.device')->with('success', 'Lokasi perangkat berhasil diperbarui');
 }
 
     /**
@@ -103,7 +146,14 @@ class DeviceController extends Controller
     public function show($id)
     {
         $device = Device::find($id);
-        return view('admin.devices.show', compact('device'));
+        $apSummary = null;
+        try {
+            $apSummary = app(\App\Services\RuckusService::class)->getApSummary($device->device_id);
+            Log::info($apSummary);
+        } catch (\Exception $e) {
+            Log::error('Error fetching AP summary: ' . $e->getMessage());
+        }
+        return view('admin.devices.show', compact('device', 'apSummary'));
     }
 
     /**
@@ -151,5 +201,22 @@ class DeviceController extends Controller
     {
         $device->delete();
         return redirect()->route('admin.device')->with('success', 'Device berhasil dihapus');
+    }
+
+    /**
+     * Menampilkan informasi device berdasarkan device_id (untuk QR scan public)
+     */
+    public function publicShow($device_id)
+    {
+        $device = Device::where('device_id', $device_id)->firstOrFail();
+        $apSummary = null;
+        try {
+            $apSummary = app(\App\Services\RuckusService::class)->getApSummary($device_id);
+            Log::info($apSummary);
+        } catch (\Exception $e) {
+            Log::error('Error fetching AP summary: ' . $e->getMessage());
+            $apSummary = null;
+        }
+        return view('public.device.show', compact('device', 'apSummary'));
     }
 }
