@@ -8,11 +8,19 @@ use App\Models\Device;
 use App\Models\Gedung;
 use App\Models\Location;
 use App\Models\Tipe;
+use App\Services\RuckusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
 {
+    protected $ruckusService;
+    
+    public function __construct(RuckusService $ruckusService)
+    {
+        $this->ruckusService = $ruckusService;
+    }
+
     /**
      * Menampilkan daftar device.
      */
@@ -32,7 +40,22 @@ class DeviceController extends Controller
         $tipes = Tipe::all();
         $categoriesDana = CategoryDana::all();
         $brands = Brand::all();
-        return view('admin.devices.create', compact('tipes', 'categoriesDana', 'brands'));
+        
+        // Get zones from Ruckus service
+        $zones = $this->ruckusService->getZone();
+        
+        // Get all buildings for each zone
+        $allBuildings = [];
+        if (isset($zones['list'])) {
+            foreach ($zones['list'] as $zone) {
+                $buildings = $this->ruckusService->getGedung($zone['id']);
+                if (isset($buildings['list'])) {
+                    $allBuildings[$zone['id']] = $buildings['list'];
+                }
+            }
+        }
+        
+        return view('admin.devices.create', compact('tipes', 'categoriesDana', 'brands', 'zones', 'allBuildings'));
     }
 
     /**
@@ -172,7 +195,22 @@ class DeviceController extends Controller
         $tipes = Tipe::all();
         $categoriesDana = CategoryDana::all();
         $brands = Brand::all();
-        return view('admin.device.edit', compact('device', 'tipes', 'categoriesDana', 'brands'));
+        
+        // Get zones from Ruckus service
+        $zones = $this->ruckusService->getZone();
+        
+        // Get all buildings for each zone
+        $allBuildings = [];
+        if (isset($zones['list'])) {
+            foreach ($zones['list'] as $zone) {
+                $buildings = $this->ruckusService->getGedung($zone['id']);
+                if (isset($buildings['list'])) {
+                    $allBuildings[$zone['id']] = $buildings['list'];
+                }
+            }
+        }
+        
+        return view('admin.devices.edit', compact('device', 'tipes', 'categoriesDana', 'brands', 'zones', 'allBuildings'));
     }
 
     /**
@@ -218,5 +256,28 @@ class DeviceController extends Controller
             $apSummary = null;
         }
         return view('public.device.show', compact('device', 'apSummary'));
+    }
+
+    /**
+     * Get MAC addresses for a specific building
+     */
+    public function getMacAddresses($zoneId, $buildingId)
+    {
+        try {
+            Log::info('Getting MAC addresses', [
+                'zone_id' => $zoneId,
+                'building_id' => $buildingId
+            ]);
+            
+            $macs = $this->ruckusService->getMac($zoneId, $buildingId);
+            return response()->json($macs);
+        } catch (\Exception $e) {
+            Log::error('Error getting MAC addresses', [
+                'error' => $e->getMessage(),
+                'zone_id' => $zoneId,
+                'building_id' => $buildingId
+            ]);
+            return response()->json(['error' => 'Failed to get MAC addresses'], 500);
+        }
     }
 }

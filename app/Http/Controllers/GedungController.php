@@ -5,13 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Gedung;
 use App\Models\Device;
 use App\Models\Location;
+use App\Services\RuckusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class GedungController extends Controller
 {
+    protected $ruckusService;
+    
+    public function __construct(RuckusService $ruckusService)
+    {
+        $this->ruckusService = $ruckusService;
+    }
+
     /**
      * Menampilkan daftar gedung.
      */
@@ -20,7 +29,24 @@ class GedungController extends Controller
         // Mengambil semua data gedung beserta relasi parent (jika ada)
         $gedungs = Gedung::with('parent')->get();
         $parent = Gedung::all();
-        return view('admin.gedung.index', compact('gedungs', 'parent'));
+        
+        // Get zones from Ruckus service
+        $zones = $this->ruckusService->getZone();
+        
+        // Get all buildings for each zone
+        $allBuildings = [];
+        if (isset($zones['list'])) {
+            foreach ($zones['list'] as $zone) {
+                $buildings = $this->ruckusService->getGedung($zone['id']);
+                if (isset($buildings['list'])) {
+                    $allBuildings[$zone['id']] = $buildings['list'];
+                }
+            }
+        }
+        
+        Log::info('All buildings loaded', ['buildings' => $allBuildings]);
+        
+        return view('admin.gedung.index', compact('gedungs', 'parent', 'zones', 'allBuildings'));
     }
 
     /**
@@ -39,6 +65,15 @@ class GedungController extends Controller
         })->with(['tipe', 'brand', 'location' => function($query) {
             $query->latest()->first();
         }])->get();
+        
+        // Get active and inactive devices
+        $activeDevices = $currentDevices->filter(function($device) {
+            return $device->isActive;
+        });
+        
+        $inactiveDevices = $currentDevices->filter(function($device) {
+            return !$device->isActive;
+        });
         
         // Get history of all devices that have been in this building
         $deviceHistory = Location::where('gedung_id', $gedung->id)
@@ -61,7 +96,14 @@ class GedungController extends Controller
         ->groupBy('tipes.name')
         ->get();
         
-        return view('admin.gedung.show', compact('gedung', 'currentDevices', 'deviceHistory', 'devicesByType'));
+        return view('admin.gedung.show', compact(
+            'gedung', 
+            'currentDevices', 
+            'activeDevices', 
+            'inactiveDevices',
+            'deviceHistory', 
+            'devicesByType'
+        ));
     }
 
     /**
@@ -74,6 +116,8 @@ class GedungController extends Controller
             'lokasi'    => 'nullable|string',
             'parent_id' => 'nullable|exists:gedungs,id',
             'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'zone_id'   => 'nullable|string',
+            'gedung_id' => 'nullable|string',
         ]);
 
         // Jika slug tidak diisi, buat otomatis dari name
@@ -105,6 +149,8 @@ class GedungController extends Controller
             'slug'      => 'nullable|string|max:255|unique:gedungs,slug,' . $gedung->id,
             'parent_id' => 'nullable|exists:gedungs,id',
             'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'zone_id'   => 'nullable|string',
+            'gedung_id' => 'nullable|string',
         ]);
 
         if (empty($validated['slug'])) {
@@ -147,6 +193,32 @@ class GedungController extends Controller
     public function edit(Gedung $gedung)
     {
         $parent = Gedung::all();
-        return view('admin.gedung.edit', compact('gedung', 'parent'));
+        
+        // Get zones from Ruckus service
+        $zones = $this->ruckusService->getZone();
+        
+        // If zone_id is set, get buildings for that zone
+        $buildings = null;
+        if ($gedung->zone_id) {
+            $buildings = $this->ruckusService->getGedung($gedung->zone_id);
+        }
+        
+        return view('admin.gedung.edit', compact('gedung', 'parent', 'zones', 'buildings'));
+    }
+    
+    /**
+     * Mendapatkan daftar gedung dari Ruckus berdasarkan zone_id
+     */
+    public function getGedungByZone($zoneId)
+    {
+        Log::info('zoneId', ['data' => $zoneId]);
+        try {
+            $buildings = $this->ruckusService->getGedung($zoneId);
+            Log::info('buildings', ['data' => $buildings]);
+            return response()->json($buildings);
+        } catch (\Exception $e) {
+            Log::error('Error getting buildings', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to get buildings'], 500);
+        }
     }
 }

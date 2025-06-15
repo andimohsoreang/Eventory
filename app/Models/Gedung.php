@@ -10,7 +10,14 @@ class Gedung extends Model
     use HasFactory;
 
     // Menentukan bahwa kolom yang dapat diisi adalah name, lokasi, parent_id, dan photo
-    protected $fillable = ['name', 'lokasi', 'parent_id', 'photo'];
+    protected $fillable = [
+        'name',
+        'lokasi',
+        'parent_id',
+        'photo',
+        'zone_id',
+        'gedung_id',
+    ];
 
     /**
      * Mendefinisikan relasi dengan gedung induk (parent)

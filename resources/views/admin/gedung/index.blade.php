@@ -1,13 +1,98 @@
 @extends('layouts.app')
 @section('content')
 @section('title', 'Master Gedung')
+
+@php
+    // Map buildings data for easy access in JavaScript
+    $buildingsMap = [];
+    if (isset($allBuildings)) {
+        foreach ($allBuildings as $zoneId => $buildings) {
+            $buildingsMap[$zoneId] = $buildings;
+        }
+    }
+@endphp
+
 @push('links')
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+    <!-- DataTables -->
     <link href="{{ asset('dist/assets/libs/simple-datatables/style.css') }}" rel="stylesheet" type="text/css" />
+    
     <!-- Sweet Alert -->
-    <link href="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
-    <!-- Select2 -->
-    <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+
+    <style>
+        /* Custom Select2 Styles */
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding-left: 12px;
+            color: #495057;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 6px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #5156be;
+            color: white;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f8f9fa;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 8px 12px;
+        }
+
+        /* Style for disabled options */
+        .select2-container--default .select2-results__option[aria-disabled=true] {
+            color: #6c757d;
+        }
+
+        /* Style for the placeholder */
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6c757d;
+        }
+
+        /* Modal specific select2 styles */
+        .modal .select2-container {
+            width: 100% !important;
+        }
+
+        /* Focused state */
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #5156be;
+            box-shadow: 0 0 0 0.2rem rgba(81, 86, 190, 0.25);
+        }
+    </style>
 @endpush
 
 <div class="row">
@@ -51,6 +136,8 @@
                                 <th>Nama Gedung</th>
                                 <th>Lokasi</th>
                                 <th>Parent Gedung</th>
+                                <th>Zone</th>
+                                <th>Building</th>
                                 <th>Foto</th>
                                 <th>Aksi</th>
                             </tr>
@@ -65,6 +152,16 @@
                                         {{ $item->parent ? $item->parent->name : 'N/A' }}
                                     </td>
                                     <td>
+                                        @if(isset($zones['list']))
+                                            @foreach($zones['list'] as $zone)
+                                                @if($zone['id'] == $item->zone_id)
+                                                    {{ $zone['name'] }}
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->gedung_id ?: 'N/A' }}</td>
+                                    <td>
                                         @if ($item->photo)
                                             <img src="{{ $item->photo_url }}" alt="{{ $item->name }}"
                                                 class="img-fluid rounded" width="100" height="100">
@@ -76,7 +173,7 @@
                                         <a href="{{ route('admin.gedung.show', $item->id) }}"
                                             class="btn btn-outline-info">Detail</a>
                                         <button class="btn btn-outline-primary edit-btn"
-                                            onclick="openEditModal('{{ $item->id }}', '{{ $item->name }}', '{{ $item->lokasi }}', '{{ $item->parent_id }}', '{{ $item->photo ? basename($item->photo) : '' }}')">
+                                            onclick="openEditModal('{{ $item->id }}', '{{ $item->name }}', '{{ $item->lokasi }}', '{{ $item->parent_id }}', '{{ $item->photo ? basename($item->photo) : '' }}', '{{ $item->zone_id }}', '{{ $item->gedung_id }}')">
                                             Edit
                                         </button>
                                         <form action="{{ route('admin.gedung.destroy', $item->id) }}" method="POST"
@@ -143,6 +240,27 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
+                        <label for="zone_id" class="col-sm-3 col-form-label text-end">Zone Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="zone_id" name="zone_id">
+                                <option value="">Pilih Zone Ruckus</option>
+                                @if(isset($zones['list']))
+                                    @foreach ($zones['list'] as $zone)
+                                        <option value="{{ $zone['id'] }}">{{ $zone['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="gedung_id" class="col-sm-3 col-form-label text-end">Gedung Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="gedung_id" name="gedung_id">
+                                <option value="">Pilih Gedung Ruckus</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
                         <label for="photo" class="col-sm-3 col-form-label text-end">Foto / Denah</label>
                         <div class="col-sm-9">
                             <input type="file" name="photo" id="photo" class="form-control"
@@ -197,12 +315,32 @@
                     <div class="mb-3 row">
                         <label for="edit_parent_id" class="col-sm-3 col-form-label text-end">Parent Gedung</label>
                         <div class="col-sm-9">
-                            <select class="form-control" id="edit_parent_id" name="parent_id">
+                            <select class="form-control select2" id="edit_parent_id" name="parent_id">
                                 <option value="">Pilih Parent Gedung</option>
                                 @foreach ($parent as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
-
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="edit_zone_id" class="col-sm-3 col-form-label text-end">Zone Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="edit_zone_id" name="zone_id">
+                                <option value="">Pilih Zone Ruckus</option>
+                                @if(isset($zones['list']))
+                                    @foreach ($zones['list'] as $zone)
+                                        <option value="{{ $zone['id'] }}">{{ $zone['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="edit_gedung_id" class="col-sm-3 col-form-label text-end">Gedung Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="edit_gedung_id" name="gedung_id">
+                                <option value="">Pilih Gedung Ruckus</option>
                             </select>
                         </div>
                     </div>
@@ -227,6 +365,74 @@
 
 <!-- JavaScript for Modals and Slug Generation -->
 <script>
+    // Store buildings data from PHP
+    var buildingsData = @json($buildingsMap);
+    
+    // Function to populate building select based on zone
+    function populateBuildings(zoneId, targetSelect, selectedValue = '') {
+        console.log('Populating buildings for zone:', zoneId);
+        console.log('Available buildings:', buildingsData);
+        
+        const buildings = buildingsData[zoneId] || [];
+        let options = '<option value="">Pilih Gedung</option>';
+        
+        buildings.forEach(function(building) {
+            const selected = building.id === selectedValue ? 'selected' : '';
+            options += `<option value="${building.id}" ${selected}>${building.name}</option>`;
+        });
+        
+        targetSelect.html(options);
+        targetSelect.trigger('change');
+    }
+
+    $(document).ready(function() {
+        console.log('Document ready');
+        console.log('Buildings data loaded:', buildingsData);
+        
+        // Initialize Select2 with custom options
+        $('.select2').select2({
+            width: '100%',
+            placeholder: 'Pilih opsi',
+            allowClear: true,
+            theme: 'default',
+            minimumResultsForSearch: 5,
+            dropdownParent: $(this).closest('.modal-body'),
+            language: {
+                noResults: function() {
+                    return "Data tidak ditemukan";
+                },
+                searching: function() {
+                    return "Mencari...";
+                }
+            }
+        });
+
+        // Add modal zone change handler
+        $('#zone_id').on('change', function() {
+            console.log('Add modal zone changed');
+            const zoneId = $(this).val();
+            populateBuildings(zoneId, $('#gedung_id'));
+        });
+
+        // Edit modal zone change handler
+        $('#edit_zone_id').on('change', function() {
+            console.log('Edit modal zone changed');
+            const zoneId = $(this).val();
+            populateBuildings(zoneId, $('#edit_gedung_id'));
+        });
+
+        // Initialize modal specific Select2
+        $('#parent_id, #zone_id, #gedung_id').select2({
+            dropdownParent: $('#addModalLarge'),
+            width: '100%'
+        });
+
+        $('#edit_parent_id, #edit_zone_id, #edit_gedung_id').select2({
+            dropdownParent: $('#editModalLarge'),
+            width: '100%'
+        });
+    });
+
     // Fungsi untuk menghasilkan slug dari nama
     function generateSlug(text) {
         return text.toString().toLowerCase()
@@ -250,17 +456,51 @@
     }
 
     // Fungsi untuk membuka modal edit dan mengisi data form edit
-    function openEditModal(id, name, lokasi, parent_id, photo) {
+    function openEditModal(id, name, lokasi, parent_id, photo, zone_id, gedung_id) {
+        console.log('Opening edit modal with data:', {
+            id, name, lokasi, parent_id, photo, zone_id, gedung_id
+        });
+        
         document.getElementById('edit_id_gedung').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_slug').value = generateSlug(name);
         document.getElementById('edit_lokasi').value = lokasi;
         document.getElementById('edit_parent_id').value = parent_id;
+        
+        // Initialize zone_id select
+        $('#edit_zone_id').val(zone_id).trigger('change');
 
         // Set current photo info jika ada
         const currentPhotoSpan = document.getElementById('current_photo');
         if (currentPhotoSpan) {
             currentPhotoSpan.textContent = photo ? photo : 'None';
+        }
+
+        // Load buildings if zone_id exists
+        if (zone_id) {
+            console.log('Loading buildings for zone:', zone_id);
+            $.ajax({
+                url: '/admin/zone/' + zone_id + '/buildings',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('Buildings data received:', data);
+                    $('#edit_gedung_id').empty();
+                    $('#edit_gedung_id').append('<option value="">Pilih Gedung Ruckus</option>');
+                    if (data && data.list) {
+                        $.each(data.list, function(key, value) {
+                            var selected = (value.id == gedung_id) ? 'selected' : '';
+                            $('#edit_gedung_id').append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
+                        });
+                    }
+                    $('#edit_gedung_id').val(gedung_id).trigger('change');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading buildings:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                }
+            });
         }
 
         // Buka modal edit
@@ -286,23 +526,18 @@
     document.getElementById('btnUpdate').addEventListener('click', function() {
         document.getElementById('editGedungFrm').submit();
     });
-
-    // Inisialisasi Select2 untuk Parent Gedung
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof($.fn.select2) !== 'undefined') {
-            $('#parent_id').select2({
-                dropdownParent: $('#addModalLarge')
-            });
-        }
-    });
 </script>
 
 @push('scripts')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- DataTables -->
     <script src="{{ asset('dist/assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/datatable.init.js') }}"></script>
-    <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    
+    <!-- Sweet Alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     <script src="{{ asset('dist/assets/js/pages/sweet-alert.init.js') }}"></script>
-    <!-- Select2 -->
-    <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
 @endpush
 @endsection

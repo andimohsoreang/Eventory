@@ -2,10 +2,52 @@
 @section('content')
 @section('title', 'Tambah Device')
 @push('links')
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <!-- Sweet Alert -->
-    <link href="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    
     <!-- Select2 -->
-    <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding-left: 12px;
+            color: #495057;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 6px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #5156be;
+            color: white;
+        }
+    </style>
 @endpush
 
 <div class="row">
@@ -34,13 +76,47 @@
                 <form action="{{ route('admin.device.store') }}" method="POST" enctype="multipart/form-data"
                     id="deviceForm">
                     @csrf
-                    <!-- Device ID (misal, nama perangkat sebagai identitas) -->
+                    
+                    <!-- Zone Selection -->
+                    <div class="mb-3 row">
+                        <label for="zone_id" class="col-sm-3 col-form-label text-end">Zone Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="zone_id" name="zone_id">
+                                <option value="">Pilih Zone Ruckus</option>
+                                @if(isset($zones['list']))
+                                    @foreach ($zones['list'] as $zone)
+                                        <option value="{{ $zone['id'] }}">{{ $zone['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Building Selection -->
+                    <div class="mb-3 row">
+                        <label for="building_id" class="col-sm-3 col-form-label text-end">Gedung Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="building_id" name="building_id">
+                                <option value="">Pilih Gedung Ruckus</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Device ID with MAC Address Selection -->
                     <div class="mb-3 row">
                         <label for="device_id" class="col-sm-3 col-form-label text-end">Device ID <span
                                 class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="device_id" id="device_id"
-                                placeholder="Masukkan Device ID" required>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="device_id" id="device_id"
+                                    placeholder="Masukkan Device ID atau pilih MAC Address" required>
+                                <button class="btn btn-outline-secondary" type="button" id="getMacBtn" disabled>
+                                    Get MAC
+                                </button>
+                            </div>
+                            <select class="form-control mt-2 d-none" id="mac_addresses">
+                                <option value="">Pilih MAC Address</option>
+                            </select>
                         </div>
                     </div>
 
@@ -91,7 +167,7 @@
                         <label for="isActive" class="col-sm-3 col-form-label text-end">Status <span
                                 class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="form-control" name="isActive" id="isActive" required>
+                            <select class="form-control select2" name="isActive" id="isActive" required>
                                 <option value="">-- Pilih Status --</option>
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
@@ -109,8 +185,6 @@
                             <small class="form-text text-muted">Format: PNG/JPG (max: 2MB)</small>
                         </div>
                     </div>
-
-
 
                     <!-- Foto Device (Opsional) -->
                     <h5 class="mb-3 mt-4">Foto Device</h5>
@@ -150,7 +224,6 @@
                         </div>
                     </div>
 
-
                     <div class="row mt-4">
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-primary">
@@ -169,10 +242,103 @@
 
 @push('scripts')
     <!-- Select2 -->
-    <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     <script>
+        // Store buildings data from PHP
+        const buildingsData = @json($allBuildings);
+        
         $(document).ready(function() {
-            $('.select2').select2();
+            // Initialize Select2
+            $('.select2').select2({
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'Pilih opsi';
+                }
+            });
+
+            // Function to populate building select based on zone
+            function populateBuildings(zoneId) {
+                const buildings = buildingsData[zoneId] || [];
+                let options = '<option value="">Pilih Gedung</option>';
+                
+                buildings.forEach(function(building) {
+                    options += `<option value="${building.id}">${building.name}</option>`;
+                });
+                
+                $('#building_id').html(options).trigger('change');
+            }
+
+            // Zone change handler
+            $('#zone_id').on('change', function() {
+                const zoneId = $(this).val();
+                populateBuildings(zoneId);
+                $('#getMacBtn').prop('disabled', true);
+                $('#mac_addresses').addClass('d-none').html('<option value="">Pilih MAC Address</option>');
+            });
+
+            // Building change handler
+            $('#building_id').on('change', function() {
+                const buildingId = $(this).val();
+                $('#getMacBtn').prop('disabled', !buildingId);
+                $('#mac_addresses').addClass('d-none').html('<option value="">Pilih MAC Address</option>');
+            });
+
+            // Get MAC addresses button handler
+            $('#getMacBtn').on('click', function() {
+                const zoneId = $('#zone_id').val();
+                const buildingId = $('#building_id').val();
+                if (!zoneId || !buildingId) {
+                    alert('Please select both Zone and Building first');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/admin/device/get-macs/${zoneId}/${buildingId}`,
+                    type: 'GET',
+                    beforeSend: function() {
+                        $('#getMacBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                    },
+                    success: function(response) {
+                        console.log('MAC response:', response);
+                        if (response && response.members) {
+                            let options = '<option value="">Pilih MAC Address</option>';
+                            response.members.forEach(function(ap) {
+                                options += `<option value="${ap.apMac}">${ap.apMac} - ${ap.apSerial || 'Unnamed'}</option>`;
+                            });
+                            $('#mac_addresses')
+                                .html(options)
+                                .removeClass('d-none')
+                                .select2({
+                                    width: '100%',
+                                    placeholder: 'Pilih MAC Address'
+                                });
+                        } else {
+                            alert('No MAC addresses found for this building');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching MAC addresses:', error);
+                        alert('Failed to fetch MAC addresses. Please try again.');
+                    },
+                    complete: function() {
+                        $('#getMacBtn').prop('disabled', false).html('Get MAC');
+                    }
+                });
+            });
+
+            // MAC address selection handler
+            $('#mac_addresses').on('change', function() {
+                const mac = $(this).val();
+                if (mac) {
+                    $('#device_id').val(mac);
+                }
+            });
+
+            // Allow manual device ID input
+            $('#device_id').on('input', function() {
+                $('#mac_addresses').val('').trigger('change');
+            });
         });
     </script>
 @endpush

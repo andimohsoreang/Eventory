@@ -24,9 +24,26 @@ class Device extends Model
         'foto_serial',
     ];
 
+    protected $casts = [
+        'isActive' => 'boolean',
+    ];
+
+    /**
+     * Get the device's active status
+     */
+    public function getIsActiveAttribute($value)
+    {
+        return $value ?? true; // Default to true if null
+    }
+
     public function location()
     {
         return $this->hasMany(Location::class);
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(DeviceNote::class);
     }
 
     /**

@@ -237,6 +237,27 @@
         .btn-icon {
             font-size: 1rem;
         }
+
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 1rem;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .timeline-item:last-child {
+            border-left-color: transparent;
+        }
+
+        .note-content {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            white-space: pre-wrap;
+        }
     </style>
 @endpush
 
@@ -460,6 +481,46 @@
                 @endif
             </div>
         </div>
+
+        <!-- Device Notes Card -->
+        <div class="card section-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title">Device Notes</h6>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                    <i class="fa fa-plus"></i> Add Note
+                </button>
+            </div>
+            <div class="card-body">
+                @if($device->notes && $device->notes->count() > 0)
+                    <div class="timeline">
+                        @foreach($device->notes()->orderBy('created_at', 'desc')->get() as $note)
+                            <div class="timeline-item mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">
+                                        <i class="fa fa-clock me-1"></i>
+                                        {{ $note->created_at->format('d M Y H:i') }}
+                                    </span>
+                                    <form action="{{ route('admin.device.notes.destroy', $note->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-link text-danger" onclick="return confirm('Are you sure you want to delete this note?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="note-content p-3 bg-light rounded">
+                                    {{ $note->description }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle me-2"></i> No notes available for this device.
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <!-- Sidebar - Right Column -->
@@ -509,6 +570,31 @@
                 </div>
             </div>
         @endif
+    </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNoteModalLabel">Add Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.device.notes.store', $device->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Note Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

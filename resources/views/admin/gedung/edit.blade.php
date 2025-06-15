@@ -46,6 +46,32 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
+                        <label for="zone_id" class="col-sm-3 col-form-label text-end">Zone Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="zone_id" name="zone_id">
+                                <option value="">Pilih Zone Ruckus</option>
+                                @if(isset($zones['list']))
+                                    @foreach ($zones['list'] as $zone)
+                                        <option value="{{ $zone['id'] }}" {{ $gedung->zone_id == $zone['id'] ? 'selected' : '' }}>{{ $zone['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="gedung_id" class="col-sm-3 col-form-label text-end">Gedung Ruckus</label>
+                        <div class="col-sm-9">
+                            <select class="form-control select2" id="gedung_id" name="gedung_id">
+                                <option value="">Pilih Gedung Ruckus</option>
+                                @if(isset($buildings['list']))
+                                    @foreach ($buildings['list'] as $building)
+                                        <option value="{{ $building['id'] }}" {{ $gedung->gedung_id == $building['id'] ? 'selected' : '' }}>{{ $building['name'] }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
                         <label for="photo" class="col-sm-3 col-form-label text-end">Foto / Denah</label>
                         <div class="col-sm-9">
                             @if ($gedung->photo)
@@ -71,7 +97,32 @@
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+        
+        // When zone_id changes, load buildings
+        $('#zone_id').on('change', function() {
+            var zoneId = $(this).val();
+            if (zoneId) {
+                $.ajax({
+                    url: '/admin/zone/' + zoneId + '/buildings',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#gedung_id').empty();
+                        $('#gedung_id').append('<option value="">Pilih Gedung Ruckus</option>');
+                        if (data && data.list) {
+                            $.each(data.list, function(key, value) {
+                                $('#gedung_id').append('<option value="' + value.id + '">' + value.name + '</option>');
+                            });
+                        }
+                    }
+                });
+            } else {
+                $('#gedung_id').empty();
+                $('#gedung_id').append('<option value="">Pilih Gedung Ruckus</option>');
+            }
+        });
     });
+    
     function createSlug() {
         var name = document.getElementById('name').value;
         var slug = name.toLowerCase().replace(/ /g,'-').replace(/[^a-z0-9\-]/g,'');

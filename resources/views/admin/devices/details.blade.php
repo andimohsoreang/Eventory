@@ -193,6 +193,27 @@
             padding: 1rem 1.25rem;
             border-top: 1px solid var(--gray-medium);
         }
+
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 1rem;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .timeline-item:last-child {
+            border-left-color: transparent;
+        }
+
+        .note-content {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            white-space: pre-wrap;
+        }
     </style>
 @endpush
 
@@ -347,6 +368,36 @@
                         </div>
                     @endif
                 </div>
+            </div>
+        </div>
+
+        <!-- Device Notes Card -->
+        <div class="card section-card">
+            <div class="card-header">
+                <h6 class="card-title">Device Notes</h6>
+            </div>
+            <div class="card-body">
+                @if($device->notes && $device->notes->count() > 0)
+                    <div class="timeline">
+                        @foreach($device->notes()->orderBy('created_at', 'desc')->get() as $note)
+                            <div class="timeline-item mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">
+                                        <i class="fa fa-clock me-1"></i>
+                                        {{ $note->created_at->format('d M Y H:i') }}
+                                    </span>
+                                </div>
+                                <div class="note-content p-3 bg-light rounded">
+                                    {{ $note->description }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle me-2"></i> No notes available for this device.
+                    </div>
+                @endif
             </div>
         </div>
     </div>

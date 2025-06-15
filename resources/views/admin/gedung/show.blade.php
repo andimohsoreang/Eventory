@@ -206,52 +206,115 @@
             @endif
             <div class="row">
                 <div class="col-md-8">
-                    <h2 class="mb-4">{{ $gedung->name }}</h2>
-                    <div class="d-flex mb-3">
-                        <div class="me-4">
-                            <h6 class="text-muted mb-1">Location</h6>
-                            <p class="mb-0 fw-medium">{{ $gedung->lokasi ?? 'Not specified' }}</p>
-                        </div>
-                        <div class="me-4">
-                            <h6 class="text-muted mb-1">Parent Building</h6>
-                            <p class="mb-0 fw-medium">{{ $gedung->parent ? $gedung->parent->name : 'None' }}</p>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1">Child Buildings</h6>
-                            <p class="mb-0 fw-medium">{{ $gedung->children->count() }}</p>
-                        </div>
-                    </div>
-                    <div class="d-flex mb-0">
-                        <a href="{{ route('admin.gedung.edit', $gedung->id) }}" class="btn btn-primary me-2">
+                    <h2 class="mb-2">{{ $gedung->name }}</h2>
+                    <p class="mb-3">{{ $gedung->lokasi ?: 'No location specified' }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        @if($gedung->parent)
+                            <span class="badge bg-light text-dark me-2">Part of: {{ $gedung->parent->name }}</span>
+                        @endif
+                        <span class="badge bg-primary me-2">{{ $currentDevices->count() }} Devices</span>
+                        <a href="{{ route('admin.gedung.edit', $gedung->id) }}" class="btn btn-sm btn-outline-primary ms-2">
                             <i class="fa fa-edit me-1"></i> Edit Building
                         </a>
-                        <form action="{{ route('admin.gedung.destroy', $gedung->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure? This will delete the building and all associated data.')">
-                                <i class="fa fa-trash me-1"></i> Delete Building
-                            </button>
-                        </form>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="text-end">
-                        <p class="mb-1 text-muted">Total Devices</p>
-                        <h3 class="mb-3">{{ $currentDevices->count() }}</h3>
-                        <div class="device-type-distribution">
-                            @foreach($devicesByType as $type)
-                                <span class="device-badge 
-                                    @if(strtolower($type->type_name) == 'router') badge-router 
-                                    @elseif(strtolower($type->type_name) == 'switch') badge-switch 
-                                    @elseif(strtolower($type->type_name) == 'access point') badge-ap 
-                                    @elseif(strtolower($type->type_name) == 'firewall') badge-firewall 
-                                    @endif">
-                                    {{ $type->type_name }}: {{ $type->count }}
-                                </span>
-                            @endforeach
-                        </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="mt-3 mt-md-0">
+                        <a href="{{ route('admin.gedung') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fa fa-arrow-left me-1"></i> Back to Buildings
+                        </a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Building Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Building Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="30%">Name:</th>
+                                <td>{{ $gedung->name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location:</th>
+                                <td>{{ $gedung->lokasi ?: 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Parent Building:</th>
+                                <td>{{ $gedung->parent ? $gedung->parent->name : 'None' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="30%">Zone ID:</th>
+                                <td>{{ $gedung->zone_id ?: 'Not linked to any zone' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Building ID:</th>
+                                <td>{{ $gedung->gedung_id ?: 'Not linked to any building' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Devices:</th>
+                                <td>{{ $currentDevices->count() }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="device-count bg-primary bg-opacity-10">
+            <div class="count text-primary">{{ $currentDevices->count() }}</div>
+            <div class="text">
+                <h5>Total Devices</h5>
+                <p>Currently in building</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="device-count bg-secondary bg-opacity-10">
+            <div class="count text-secondary">{{ $devicesByType->count() }}</div>
+            <div class="text">
+                <h5>Device Types</h5>
+                <p>Currently in building</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="device-count bg-success bg-opacity-10">
+            <div class="count text-success">{{ $activeDevices->count() }}</div>
+            <div class="text">
+                <h5>Active Devices</h5>
+                <p>Currently in building</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="device-count bg-danger bg-opacity-10">
+            <div class="count text-danger">{{ $inactiveDevices->count() }}</div>
+            <div class="text">
+                <h5>Inactive Devices</h5>
+                <p>Currently in building</p>
             </div>
         </div>
     </div>

@@ -10,6 +10,7 @@ use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\GedungController;
 use App\Http\Controllers\TipeController;
+use App\Http\Controllers\DeviceNoteController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -59,6 +60,7 @@ Route::put('/admin/gedung/{gedung}', [GedungController::class, 'update'])->name(
 Route::delete('/admin/gedung/{gedung}', [GedungController::class, 'destroy'])->name('admin.gedung.destroy');
 Route::get('/admin/gedung/{gedung}/edit', [GedungController::class, 'edit'])->name('admin.gedung.edit');
 Route::get('/gedung/{gedung}/device', [\App\Http\Controllers\LandingController::class, 'gedungShow'])->name('public.gedung.show');
+Route::get('/admin/zone/{zoneId}/buildings', [GedungController::class, 'getGedungByZone'])->name('admin.zone.buildings');
 
 Route::get('/admin/device', [DeviceController::class, 'index'])->name('admin.device');
 Route::get('/admin/device/create', [DeviceController::class, 'create'])->name('admin.device.create');
@@ -70,7 +72,13 @@ Route::delete('/admin/device/{device}', [DeviceController::class, 'destroy'])->n
 Route::post('/admin/device/move-location', [DeviceController::class, 'moveLocation'])->name('admin.device.move-location');
 Route::get('/admin/device/{deviceId}/move-location', [DeviceController::class, 'moveLocationPage'])->name('admin.device.move-location-page');
 Route::get('admin/devices/{id}/details', [DeviceController::class, 'show'])->name('admin.device.details');
+Route::get('/admin/device/get-macs/{zoneId}/{buildingId}', [DeviceController::class, 'getMacAddresses'])->name('admin.device.get-macs');
+
 // Devices
 Route::get('admin/devices', [DeviceController::class, 'index'])->name('admin.device');
 // Route::get('admin/devices/create', [DeviceController::class, 'create'])->name('admin.device.create');
 Route::get('device/public/{device_id}', [DeviceController::class, 'publicShow'])->name('admin.device.public');
+
+// Device Notes routes
+Route::post('/admin/device/{device}/notes', [DeviceNoteController::class, 'store'])->name('admin.device.notes.store');
+Route::delete('/admin/device/notes/{note}', [DeviceNoteController::class, 'destroy'])->name('admin.device.notes.destroy');
