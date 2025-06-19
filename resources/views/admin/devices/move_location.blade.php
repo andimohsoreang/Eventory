@@ -296,29 +296,45 @@
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: response.message,
-                                icon: 'success',
-                                showCancelButton: true,
-                                confirmButtonText: 'Back to Devices List',
-                                cancelButtonText: 'Stay on this page'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = "{{ route('admin.device') }}";
-                                }
-                            });
-                        } else {
-                            Swal.fire('Error', response.message || 'An error occurred', 'error');
-                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Location Updated!',
+                            text: response.message || 'Device location has been updated successfully',
+                            showCancelButton: true,
+                            confirmButtonText: 'View Device List',
+                            cancelButtonText: 'Continue Editing',
+                            confirmButtonColor: '#28a745',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = "{{ route('admin.device') }}";
+                            } else {
+                                // Optionally refresh the current page to show updated state
+                                location.reload();
+                            }
+                        });
                     },
                     error: function(xhr) {
-                        var errorMessage = 'Failed to update device location';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                        let errorMessage = 'An error occurred while updating the device location.';
+                        
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = '<div class="text-left">';
+                            Object.keys(errors).forEach(function(key) {
+                                errorMessage += `<p class="mb-1">• ${errors[key][0]}</p>`;
+                            });
+                            errorMessage += '</div>';
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }
-                        Swal.fire('Error', errorMessage, 'error');
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            html: errorMessage,
+                            confirmButtonColor: '#dc3545'
+                        });
                     }
                 });
             });

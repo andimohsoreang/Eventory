@@ -43,6 +43,7 @@ class GedungController extends Controller
                 }
             }
         }
+
         
         Log::info('All buildings loaded', ['buildings' => $allBuildings]);
         
@@ -113,7 +114,7 @@ class GedungController extends Controller
     {
         $validated = $request->validate([
             'name'      => 'required|string|max:255',
-            'lokasi'    => 'nullable|string',
+            'lokasi'    => 'required|string',
             'parent_id' => 'nullable|exists:gedungs,id',
             'photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'zone_id'   => 'nullable|string',

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-@section('title', 'Tambah Device')
+@section('title', 'Edit Device')
 @push('links')
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -57,24 +57,26 @@
             <div class="">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="#">Device</a></li>
-                    <li class="breadcrumb-item active">Tambah Device</li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.device') }}">Device</a></li>
+                    <li class="breadcrumb-item active">Edit Device</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Form Create Device -->
+<!-- Form Edit Device -->
 <div class="row justify-content-center">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Form Tambah Device</h4>
+                <h4 class="card-title">Form Edit Device</h4>
             </div>
             <div class="card-body">
                 <form id="deviceForm" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
+                    <input type="hidden" name="id" value="{{ $device->id }}">
                     
                     <!-- Zone Selection -->
                     <div class="mb-3 row">
@@ -84,7 +86,9 @@
                                 <option value="">Pilih Zone Ruckus</option>
                                 @if(isset($zones['list']))
                                     @foreach ($zones['list'] as $zone)
-                                        <option value="{{ $zone['id'] }}">{{ $zone['name'] }}</option>
+                                        <option value="{{ $zone['id'] }}" {{ $device->zone_id == $zone['id'] ? 'selected' : '' }}>
+                                            {{ $zone['name'] }}
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>
@@ -97,37 +101,35 @@
                         <div class="col-sm-9">
                             <select class="form-control select2" id="building_id" name="building_id">
                                 <option value="">Pilih Gedung Ruckus</option>
+                                @if(isset($buildings))
+                                    @foreach ($buildings as $building)
+                                        <option value="{{ $building['id'] }}" {{ $device->building_id == $building['id'] ? 'selected' : '' }}>
+                                            {{ $building['name'] }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     </div>
 
-                    <!-- Device ID with MAC Address Selection -->
+                    <!-- Device ID -->
                     <div class="mb-3 row">
-                        <label for="device_id" class="col-sm-3 col-form-label text-end">Device ID <span
-                                class="text-danger">*</span></label>
+                        <label for="device_id" class="col-sm-3 col-form-label text-end">Device ID <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="device_id" id="device_id"
-                                    placeholder="Masukkan Device ID atau pilih MAC Address" required>
-                                <button class="btn btn-outline-secondary" type="button" id="getMacBtn" disabled>
-                                    Get MAC
-                                </button>
-                            </div>
-                            <select class="form-control mt-2 d-none" id="mac_addresses">
-                                <option value="">Pilih MAC Address</option>
-                            </select>
+                            <input type="text" class="form-control" name="device_id" id="device_id" value="{{ $device->device_id }}" required>
                         </div>
                     </div>
 
                     <!-- Tipe Device -->
                     <div class="mb-3 row">
-                        <label for="tipe_id" class="col-sm-3 col-form-label text-end">Tipe Device <span
-                                class="text-danger">*</span></label>
+                        <label for="tipe_id" class="col-sm-3 col-form-label text-end">Tipe Device <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="form-control select2" name="tipe_id" id="tipe_id" required>
                                 <option value="">-- Pilih Tipe Device --</option>
                                 @foreach ($tipes as $tipe)
-                                    <option value="{{ $tipe->id }}">{{ $tipe->name }}</option>
+                                    <option value="{{ $tipe->id }}" {{ $device->tipe_id == $tipe->id ? 'selected' : '' }}>
+                                        {{ $tipe->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -135,13 +137,14 @@
 
                     <!-- Category Dana -->
                     <div class="mb-3 row">
-                        <label for="category_dana_id" class="col-sm-3 col-form-label text-end">Category Dana <span
-                                class="text-danger">*</span></label>
+                        <label for="category_dana_id" class="col-sm-3 col-form-label text-end">Category Dana <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="form-control select2" name="category_dana_id" id="category_dana_id" required>
                                 <option value="">-- Pilih Category Dana --</option>
                                 @foreach ($categoriesDana as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    <option value="{{ $cat->id }}" {{ $device->category_dana_id == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -149,13 +152,14 @@
 
                     <!-- Brand -->
                     <div class="mb-3 row">
-                        <label for="brand_id" class="col-sm-3 col-form-label text-end">Brand <span
-                                class="text-danger">*</span></label>
+                        <label for="brand_id" class="col-sm-3 col-form-label text-end">Brand <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="form-control select2" name="brand_id" id="brand_id" required>
                                 <option value="">-- Pilih Brand --</option>
                                 @foreach ($brands as $brand)
-                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                    <option value="{{ $brand->id }}" {{ $device->brand_id == $brand->id ? 'selected' : '' }}>
+                                        {{ $brand->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -163,36 +167,46 @@
 
                     <!-- Status (isActive) -->
                     <div class="mb-3 row">
-                        <label for="isActive" class="col-sm-3 col-form-label text-end">Status <span
-                                class="text-danger">*</span></label>
+                        <label for="isActive" class="col-sm-3 col-form-label text-end">Status <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="form-control select2" name="isActive" id="isActive" required>
                                 <option value="">-- Pilih Status --</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="1" {{ $device->isActive ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ !$device->isActive ? 'selected' : '' }}>Inactive</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Sticker (BMN Sticker) sebagai Gambar -->
+                    <!-- Current Sticker Image -->
+                    @if($device->sticker)
                     <div class="mb-3 row">
-                        <label for="sticker" class="col-sm-3 col-form-label text-end">BMN Sticker <span
-                                class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-end">Current BMN Sticker</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" id="sticker" name="sticker" accept="image/*"
-                                required>
-                            <small class="form-text text-muted">Format: PNG/JPG (max: 2MB)</small>
+                            <img src="{{ asset('storage/' . $device->sticker) }}" alt="Current Sticker" class="img-thumbnail" style="max-height: 100px;">
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Sticker (BMN Sticker) -->
+                    <div class="mb-3 row">
+                        <label for="sticker" class="col-sm-3 col-form-label text-end">Update BMN Sticker</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" id="sticker" name="sticker" accept="image/*">
+                            <small class="form-text text-muted">Format: PNG/JPG (max: 2MB). Leave empty to keep current image.</small>
                         </div>
                     </div>
 
-                    <!-- Foto Device (Opsional) -->
+                    <!-- Device Photos Section -->
                     <h5 class="mb-3 mt-4">Foto Device</h5>
+
                     <!-- Foto Depan -->
                     <div class="mb-3 row">
                         <label for="foto_depan" class="col-sm-3 col-form-label text-end">Foto Depan</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" name="foto_depan" id="foto_depan"
-                                accept="image/*">
+                            @if($device->foto_depan)
+                                <img src="{{ asset('storage/' . $device->foto_depan) }}" alt="Foto Depan" class="img-thumbnail mb-2" style="max-height: 100px;">
+                            @endif
+                            <input type="file" class="form-control" name="foto_depan" id="foto_depan" accept="image/*">
                         </div>
                     </div>
 
@@ -200,8 +214,10 @@
                     <div class="mb-3 row">
                         <label for="foto_belakang" class="col-sm-3 col-form-label text-end">Foto Belakang</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" name="foto_belakang" id="foto_belakang"
-                                accept="image/*">
+                            @if($device->foto_belakang)
+                                <img src="{{ asset('storage/' . $device->foto_belakang) }}" alt="Foto Belakang" class="img-thumbnail mb-2" style="max-height: 100px;">
+                            @endif
+                            <input type="file" class="form-control" name="foto_belakang" id="foto_belakang" accept="image/*">
                         </div>
                     </div>
 
@@ -209,8 +225,10 @@
                     <div class="mb-3 row">
                         <label for="foto_terpasang" class="col-sm-3 col-form-label text-end">Foto Terpasang</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" name="foto_terpasang" id="foto_terpasang"
-                                accept="image/*">
+                            @if($device->foto_terpasang)
+                                <img src="{{ asset('storage/' . $device->foto_terpasang) }}" alt="Foto Terpasang" class="img-thumbnail mb-2" style="max-height: 100px;">
+                            @endif
+                            <input type="file" class="form-control" name="foto_terpasang" id="foto_terpasang" accept="image/*">
                         </div>
                     </div>
 
@@ -218,18 +236,20 @@
                     <div class="mb-3 row">
                         <label for="foto_serial" class="col-sm-3 col-form-label text-end">Foto Serial</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" name="foto_serial" id="foto_serial"
-                                accept="image/*">
+                            @if($device->foto_serial)
+                                <img src="{{ asset('storage/' . $device->foto_serial) }}" alt="Foto Serial" class="img-thumbnail mb-2" style="max-height: 100px;">
+                            @endif
+                            <input type="file" class="form-control" name="foto_serial" id="foto_serial" accept="image/*">
                         </div>
                     </div>
 
                     <div class="row mt-4">
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save me-1"></i> Simpan
+                                <i class="fa fa-save me-1"></i> Update Device
                             </button>
                             <a href="{{ route('admin.device') }}" class="btn btn-secondary ms-2">
-                                <i class="fa fa-arrow-left me-1"></i> Kembali
+                                <i class="fa fa-arrow-left me-1"></i> Back
                             </a>
                         </div>
                     </div>
@@ -242,19 +262,45 @@
 @push('scripts')
     <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     
     <script>
-        // Store buildings data from PHP
-        const buildingsData = @json($allBuildings);
-        
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 width: '100%',
                 placeholder: function() {
-                    return $(this).data('placeholder') || 'Pilih opsi';
+                    return $(this).data('placeholder') || 'Select an option';
                 }
             });
+
+            // Store buildings data from PHP
+            const buildingsData = @json($allBuildings ?? []);
+            
+            // Function to populate building select based on zone
+            function populateBuildings(zoneId) {
+                const buildings = buildingsData[zoneId] || [];
+                let options = '<option value="">Pilih Gedung</option>';
+                
+                buildings.forEach(function(building) {
+                    const selected = building.id == '{{ $device->building_id }}' ? 'selected' : '';
+                    options += `<option value="${building.id}" ${selected}>${building.name}</option>`;
+                });
+                
+                $('#building_id').html(options).trigger('change');
+            }
+
+            // Zone change handler
+            $('#zone_id').on('change', function() {
+                const zoneId = $(this).val();
+                populateBuildings(zoneId);
+            });
+
+            // Initialize buildings if zone is selected
+            if ($('#zone_id').val()) {
+                populateBuildings($('#zone_id').val());
+            }
 
             // Handle form submission
             $('#deviceForm').on('submit', function(e) {
@@ -264,7 +310,7 @@
                 const formData = new FormData(this);
                 
                 $.ajax({
-                    url: "{{ route('admin.device.store') }}",
+                    url: "{{ route('admin.device.update', $device->id) }}",
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -272,7 +318,7 @@
                     beforeSend: function() {
                         Swal.fire({
                             title: 'Please Wait',
-                            text: 'Creating new device...',
+                            text: 'Updating device information...',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -283,23 +329,18 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: response.message || 'Device has been created successfully',
+                            text: response.message || 'Device has been updated successfully',
                             showCancelButton: true,
                             confirmButtonText: 'View Device List',
-                            cancelButtonText: 'Add Another Device'
+                            cancelButtonText: 'Continue Editing'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 window.location.href = "{{ route('admin.device') }}";
-                            } else {
-                                // Reset form for new entry
-                                $('#deviceForm')[0].reset();
-                                $('.select2').val('').trigger('change');
-                                $('#mac_addresses').addClass('d-none');
                             }
                         });
                     },
                     error: function(xhr) {
-                        let errorMessage = 'An error occurred while creating the device.';
+                        let errorMessage = 'An error occurred while updating the device.';
                         
                         if (xhr.status === 422) {
                             // Validation errors
@@ -320,89 +361,6 @@
                         });
                     }
                 });
-            });
-
-            // Function to populate building select based on zone
-            function populateBuildings(zoneId) {
-                const buildings = buildingsData[zoneId] || [];
-                let options = '<option value="">Pilih Gedung</option>';
-                
-                buildings.forEach(function(building) {
-                    options += `<option value="${building.id}">${building.name}</option>`;
-                });
-                
-                $('#building_id').html(options).trigger('change');
-            }
-
-            // Zone change handler
-            $('#zone_id').on('change', function() {
-                const zoneId = $(this).val();
-                populateBuildings(zoneId);
-                $('#getMacBtn').prop('disabled', true);
-                $('#mac_addresses').addClass('d-none').html('<option value="">Pilih MAC Address</option>');
-            });
-
-            // Building change handler
-            $('#building_id').on('change', function() {
-                const buildingId = $(this).val();
-                $('#getMacBtn').prop('disabled', !buildingId);
-                $('#mac_addresses').addClass('d-none').html('<option value="">Pilih MAC Address</option>');
-            });
-
-            // Get MAC addresses button handler
-            $('#getMacBtn').on('click', function() {
-                const zoneId = $('#zone_id').val();
-                const buildingId = $('#building_id').val();
-                if (!zoneId || !buildingId) {
-                    alert('Please select both Zone and Building first');
-                    return;
-                }
-
-                $.ajax({
-                    url: `/admin/device/get-macs/${zoneId}/${buildingId}`,
-                    type: 'GET',
-                    beforeSend: function() {
-                        $('#getMacBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
-                    },
-                    success: function(response) {
-                        console.log('MAC response:', response);
-                        if (response && response.members) {
-                            let options = '<option value="">Pilih MAC Address</option>';
-                            response.members.forEach(function(ap) {
-                                options += `<option value="${ap.apMac}">${ap.apMac} - ${ap.apSerial || 'Unnamed'}</option>`;
-                            });
-                            $('#mac_addresses')
-                                .html(options)
-                                .removeClass('d-none')
-                                .select2({
-                                    width: '100%',
-                                    placeholder: 'Pilih MAC Address'
-                                });
-                        } else {
-                            alert('No MAC addresses found for this building');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching MAC addresses:', error);
-                        alert('Failed to fetch MAC addresses. Please try again.');
-                    },
-                    complete: function() {
-                        $('#getMacBtn').prop('disabled', false).html('Get MAC');
-                    }
-                });
-            });
-
-            // MAC address selection handler
-            $('#mac_addresses').on('change', function() {
-                const mac = $(this).val();
-                if (mac) {
-                    $('#device_id').val(mac);
-                }
-            });
-
-            // Allow manual device ID input
-            $('#device_id').on('input', function() {
-                $('#mac_addresses').val('').trigger('change');
             });
         });
     </script>

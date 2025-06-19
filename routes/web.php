@@ -11,6 +11,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\GedungController;
 use App\Http\Controllers\TipeController;
 use App\Http\Controllers\DeviceNoteController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -20,6 +21,14 @@ Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// User Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
+    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+});
 
 Route::get('/admin/account', [AccountController::class, 'index'])->name('admin.account');
 Route::post('/admin/account', [AccountController::class, 'store'])->name('admin.account.store');

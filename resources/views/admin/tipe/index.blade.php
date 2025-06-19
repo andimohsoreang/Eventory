@@ -80,17 +80,19 @@
                                     <td>
                                         <a href="{{ route('admin.tipe.show', $item->id) }}"
                                             class="btn btn-outline-info">Detail</a>
-                                        <button class="btn btn-outline-primary edit-btn"
-                                            onclick="openEditModal('{{ $item->id }}', '{{ $item->name }}', '{{ $item->icon }}', '{{ $item->isRuckus ? 'Yes' : 'No' }}', '{{ $item->file ? basename($item->file) : '' }}')">
+                                        <button class="btn btn-outline-primary edit-btn" 
+                                                data-id="{{ $item->id }}"
+                                                data-name="{{ $item->name }}"
+                                                data-icon="{{ $item->icon }}"
+                                                data-is-ruckus="{{ $item->isRuckus }}"
+                                                data-file="{{ $item->file ? basename($item->file) : '' }}">
                                             Edit
                                         </button>
-                                        <form action="{{ route('admin.tipe.destroy', $item->id) }}" method="POST"
-                                            style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger"
-                                                onclick="return confirm('Yakin hapus data?')">Hapus</button>
-                                        </form>
+                                        <button type="button" class="btn btn-outline-danger delete-btn"
+                                                data-id="{{ $item->id }}"
+                                                data-name="{{ $item->name }}">
+                                            Hapus
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -309,11 +311,226 @@
 </script>
 
 @push('scripts')
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script src="{{ asset('dist/assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/datatable.init.js') }}"></script>
     <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/sweet-alert.init.js') }}"></script>
     <!-- Select2 -->
     <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Function to format validation errors
+            function formatValidationErrors(errors) {
+                let errorMessage = '<div class="text-left">';
+                for (let field in errors) {
+                    errorMessage += `<p class="mb-1">• ${errors[field][0]}</p>`;
+                }
+                errorMessage += '</div>';
+                return errorMessage;
+            }
+
+            // Function to generate slug
+            function generateSlug(text) {
+                return text.toString().toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w\-]+/g, '')
+                    .replace(/\-\-+/g, '-')
+                    .replace(/^-+/, '')
+                    .replace(/-+$/, '');
+            }
+
+            // Update slug automatically when typing name
+            $('#tipe_name').on('keyup', function() {
+                $('#slug').val(generateSlug($(this).val()));
+            });
+
+            $('#edit_tipe_name').on('keyup', function() {
+                $('#edit_slug').val(generateSlug($(this).val()));
+            });
+
+            // Form Submit Handler - Create
+            $('#tipeFrm').on('submit', function(e) {
+                e.preventDefault();
+                
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: response.message || 'Tipe berhasil disimpan',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            let errors = xhr.responseJSON.errors;
+                            Swal.fire({
+                                title: 'Validasi Error!',
+                                html: formatValidationErrors(errors),
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            // Other errors
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON.message || 'Terjadi kesalahan',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Form Submit Handler - Update
+            $('#editTipeFrm').on('submit', function(e) {
+                e.preventDefault();
+                
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: response.message || 'Tipe berhasil diupdate',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            let errors = xhr.responseJSON.errors;
+                            Swal.fire({
+                                title: 'Validasi Error!',
+                                html: formatValidationErrors(errors),
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            // Other errors
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON.message || 'Terjadi kesalahan',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Edit button click handler
+            $(document).on('click', '.edit-btn', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var icon = $(this).data('icon');
+                var isRuckus = $(this).data('is-ruckus');
+                var file = $(this).data('file');
+
+                $('#edit_id_tipe').val(id);
+                $('#edit_tipe_name').val(name);
+                $('#edit_slug').val(generateSlug(name));
+                $('#edit_icon').val(icon);
+                $('#edit_isRuckus').val(isRuckus ? '1' : '0');
+
+                // Update current file text if exists
+                if (file) {
+                    $('#current_file').text(file);
+                    $('#current_file_text').show();
+                } else {
+                    $('#current_file_text').hide();
+                }
+
+                // Update form action
+                var updateUrl = "{{ route('admin.tipe.update', ':id') }}";
+                updateUrl = updateUrl.replace(':id', id);
+                $('#editTipeFrm').attr('action', updateUrl);
+
+                $('#editModalLarge').modal('show');
+            });
+
+            // Delete button click handler
+            $(document).on('click', '.delete-btn', function() {
+                var tipeId = $(this).data('id');
+                var tipeName = $(this).data('name');
+                
+                Swal.fire({
+                    title: 'Apakah anda yakin?',
+                    html: `Anda akan menghapus tipe: <b>${tipeName}</b>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('admin.tipe.destroy', ':id') }}".replace(':id', tipeId),
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE'
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'Terhapus!',
+                                    text: 'Tipe berhasil dihapus.',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMessage = 'Gagal menghapus tipe.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: errorMessage,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Focus input on modal show
+            $('#addModalLarge').on('shown.bs.modal', function() {
+                $('#tipe_name').focus();
+            });
+
+            $('#editModalLarge').on('shown.bs.modal', function() {
+                $('#edit_tipe_name').focus();
+            });
+        });
+    </script>
 @endpush
 @endsection

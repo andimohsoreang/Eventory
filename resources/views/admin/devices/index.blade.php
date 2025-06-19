@@ -2,13 +2,54 @@
 @section('content')
 @section('title', 'Master Device')
 @push('links')
+    <!-- DataTables -->
     <link href="{{ asset('dist/assets/libs/simple-datatables/style.css') }}" rel="stylesheet" type="text/css" />
+    
     <!-- Sweet Alert -->
     <link href="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
+    
     <!-- Select2 -->
-    <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
     <style>
+        /* Select2 Custom Styles */
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            background-color: #fff;
+            box-shadow: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding-left: 12px;
+            color: #495057;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            right: 6px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e2e5e8;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #5156be;
+            color: white;
+        }
+
         .location-marker {
             position: absolute;
             width: 20px;
@@ -137,12 +178,11 @@
                                             class="btn btn-outline-info btn-sm">Detail</a>
                                         <a href="{{ route('admin.device.edit', $device->id) }}"
                                             class="btn btn-outline-primary btn-sm">Edit</a>
-                                        <form action="{{ route('admin.device.destroy', $device->id) }}" method="POST"
-                                            class="d-inline-block" onsubmit="return confirm('Yakin hapus data?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Hapus</button>
-                                        </form>
+                                        <button type="button" class="btn btn-outline-danger btn-sm delete-device"
+                                                data-id="{{ $device->id }}"
+                                                data-name="{{ $device->device_id }}">
+                                            <i class="fa fa-trash me-1"></i> Delete
+                                        </button>
                                         <a href="{{ route('admin.device.details', $device->id) }}"
                                             class="btn btn-outline-secondary btn-sm">Lihat Device</a>
                                         <a href="{{ route('admin.device.move-location-page', $device->device_id) }}"
@@ -350,11 +390,143 @@
 </script>
 
 @push('scripts')
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 -->
     <script src="{{ asset('dist/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    
+    <!-- Select2 -->
     <script src="{{ asset('dist/assets/libs/select2/js/select2.min.js') }}"></script>
+    
+    <!-- DataTables -->
     <script src="{{ asset('dist/assets/libs/simple-datatables/umd/simple-datatables.js') }}"></script>
     <script src="{{ asset('dist/assets/js/pages/datatable.init.js') }}"></script>
+
+    <!-- Custom Script -->
+    <script type="text/javascript">
+        // Wait for document ready and ensure jQuery is loaded
+        window.addEventListener('DOMContentLoaded', function() {
+            // Check if jQuery is loaded
+            if (typeof jQuery != 'undefined') {
+                // Initialize Select2 after ensuring the plugin is loaded
+                if ($.fn.select2) {
+                    $('.select2').select2({
+                        width: '100%',
+                        placeholder: function() {
+                            return $(this).data('placeholder') || 'Select an option';
+                        }
+                    });
+                }
+
+                // Handle device deletion
+                $(document).on('click', '.delete-device', function() {
+                const deviceId = $(this).data('id');
+                const deviceName = $(this).data('name');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    html: `You are about to delete device: <br><strong>${deviceName}</strong>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/admin/device/${deviceId}`,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE'
+                            },
+                            beforeSend: function() {
+                                Swal.fire({
+                                    title: 'Please Wait',
+                                    text: 'Deleting device...',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: response.message || 'Device has been deleted successfully',
+                                    confirmButtonColor: '#28a745'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMessage = 'Failed to delete the device.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: errorMessage,
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Handle filter changes
+            $('#filter_tipe, #filter_gedung').on('change', function() {
+                // Add your filter logic here
+                // You can use the datatable API to filter the results
+            });
+
+            // Handle search
+            $('#search-box').on('keyup', function() {
+                // Add your search logic here
+                // You can use the datatable API to search
+            });
+            } else {
+                console.error('jQuery is not loaded');
+            }
+        });
+    </script>
+@endpush
+
+@push('scripts')
+<script type="text/javascript">
+    // Fallback initialization if the first one fails
+    document.addEventListener('DOMContentLoaded', function() {
+        // Try to initialize after a short delay to ensure all scripts are loaded
+        setTimeout(function() {
+            if (typeof jQuery != 'undefined' && typeof $.fn.select2 != 'undefined') {
+                try {
+                    $('.select2').select2({
+                        width: '100%',
+                        placeholder: function() {
+                            return $(this).data('placeholder') || 'Select an option';
+                        }
+                    });
+                    console.log('Select2 initialized successfully');
+                } catch (e) {
+                    console.error('Error initializing Select2:', e);
+                }
+            } else {
+                console.error('Required libraries not loaded:', {
+                    'jQuery': typeof jQuery != 'undefined',
+                    'Select2': typeof $.fn.select2 != 'undefined'
+                });
+            }
+        }, 1000);
+    });
+</script>
 @endpush
 @endsection
