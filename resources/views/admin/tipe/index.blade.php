@@ -386,9 +386,13 @@
                             });
                         } else {
                             // Other errors
+                            let errorMessage = 'Terjadi kesalahan';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
                             Swal.fire({
                                 title: 'Error!',
-                                text: xhr.responseJSON.message || 'Terjadi kesalahan',
+                                text: errorMessage,
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });
@@ -431,9 +435,13 @@
                             });
                         } else {
                             // Other errors
+                            let errorMessage = 'Terjadi kesalahan';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
                             Swal.fire({
                                 title: 'Error!',
-                                text: xhr.responseJSON.message || 'Terjadi kesalahan',
+                                text: errorMessage,
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });

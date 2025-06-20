@@ -33,7 +33,7 @@ class TipeController extends Controller
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
-            'file' => 'nullable|', 
+            'file'    => 'nullable|file|mimes:stl,obj,fbx,dae,glb,ply|max:10000',
             'icon'    => 'nullable|string',
             'isRuckus'=> 'required|boolean',
         ]);
@@ -44,11 +44,21 @@ class TipeController extends Controller
             $path = $request->file('file')->storeAs('tipe_files', $fileName, 'public');
             $validated['file'] = $path;
         }
+
+        $validated['slug'] = Str::slug($validated['name']);
         
-
-        Tipe::create($validated);
-
-        return redirect()->route('admin.tipe')->with('success', 'Tipe berhasil ditambahkan');
+        try {
+            Tipe::create($validated);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tipe berhasil ditambahkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menambahkan tipe: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
