@@ -33,7 +33,7 @@ class TipeController extends Controller
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
-            'file'    => 'nullable|file|mimes:stl,obj,fbx,dae,glb,ply|max:10000',
+           'file' => 'nullable|max:51200',
             'icon'    => 'nullable|string',
             'isRuckus'=> 'required|boolean',
         ]);
