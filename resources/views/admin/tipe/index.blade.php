@@ -8,6 +8,26 @@
     <link href="{{ asset('dist/assets/libs/animate.css/animate.min.css') }}" rel="stylesheet" type="text/css">
     <!-- Select2 (jika diperlukan) -->
     <link href="{{ asset('dist/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <style>
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+        }
+    </style>
 @endpush
 
 <div class="row">
@@ -245,6 +265,16 @@
     </div><!-- end modal-dialog -->
 </div><!-- end modal -->
 
+<!-- Loading Overlay -->
+<div class="loading-overlay">
+    <div class="loading-spinner">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="mt-2">Processing Request...</div>
+    </div>
+</div>
+
 <!-- JavaScript for Modals and Slug Generation -->
 <script>
     // Fungsi untuk menghasilkan slug dari nama
@@ -323,6 +353,16 @@
 
     <script>
         $(document).ready(function() {
+            // Show loading overlay
+            function showLoading() {
+                $('.loading-overlay').fadeIn();
+            }
+
+            // Hide loading overlay
+            function hideLoading() {
+                $('.loading-overlay').fadeOut();
+            }
+
             // Function to format validation errors
             function formatValidationErrors(errors) {
                 let errorMessage = '<div class="text-left">';
@@ -357,6 +397,26 @@
                 e.preventDefault();
                 
                 let formData = new FormData(this);
+                
+                // Check file size before upload
+                let fileInput = $('#file')[0];
+                if (fileInput.files.length > 0) {
+                    let fileSize = fileInput.files[0].size; // in bytes
+                    let maxSize = 50 * 1024 * 1024; // 50MB in bytes
+                    
+                    if (fileSize > maxSize) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'File size must not exceed 50MB',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+                }
+
+                // Show loading overlay
+                showLoading();
 
                 $.ajax({
                     url: $(this).attr('action'),
@@ -365,6 +425,7 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        hideLoading();
                         Swal.fire({
                             title: 'Berhasil!',
                             text: response.message || 'Tipe berhasil disimpan',
@@ -375,7 +436,15 @@
                         });
                     },
                     error: function(xhr) {
-                        if (xhr.status === 422) {
+                        hideLoading();
+                        if (xhr.status === 413) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'File size is too large. Please upload a smaller file.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else if (xhr.status === 422) {
                             // Validation errors
                             let errors = xhr.responseJSON.errors;
                             Swal.fire({
@@ -407,6 +476,26 @@
                 
                 let formData = new FormData(this);
 
+                // Check file size before upload
+                let fileInput = $('#edit_file')[0];
+                if (fileInput.files.length > 0) {
+                    let fileSize = fileInput.files[0].size; // in bytes
+                    let maxSize = 50 * 1024 * 1024; // 50MB in bytes
+                    
+                    if (fileSize > maxSize) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'File size must not exceed 50MB',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+                }
+
+                // Show loading overlay
+                showLoading();
+
                 $.ajax({
                     url: $(this).attr('action'),
                     method: "POST",
@@ -414,6 +503,7 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        hideLoading();
                         Swal.fire({
                             title: 'Berhasil!',
                             text: response.message || 'Tipe berhasil diupdate',
@@ -424,7 +514,15 @@
                         });
                     },
                     error: function(xhr) {
-                        if (xhr.status === 422) {
+                        hideLoading();
+                        if (xhr.status === 413) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'File size is too large. Please upload a smaller file.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else if (xhr.status === 422) {
                             // Validation errors
                             let errors = xhr.responseJSON.errors;
                             Swal.fire({
